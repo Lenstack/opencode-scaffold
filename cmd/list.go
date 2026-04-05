@@ -173,22 +173,3 @@ func listTemplates() error {
 	return nil
 }
 
-func extractFrontmatterField(content, field string) string {
-	lines := strings.Split(content, "\n")
-	inFrontmatter := false
-	for _, line := range lines {
-		if strings.TrimSpace(line) == "---" {
-			if inFrontmatter {
-				break
-			}
-			inFrontmatter = true
-			continue
-		}
-		if inFrontmatter {
-			if strings.HasPrefix(line, field+":") {
-				return strings.TrimSpace(strings.TrimPrefix(line, field+":"))
-			}
-		}
-	}
-	return ""
-}

@@ -369,7 +369,7 @@ func newSkillInstallCmd() *cobra.Command {
 			}
 
 			root := mustGetwd()
-			d, err := openDB()
+			d, err := openEngine()
 			if err != nil {
 				return err
 			}
@@ -445,7 +445,7 @@ func newSkillListCmd() *cobra.Command {
 			}
 
 			root := mustGetwd()
-			d, err := openDB()
+			d, err := openEngine()
 			if err != nil {
 				return err
 			}
@@ -490,7 +490,7 @@ func newSkillUninstallCmd() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			root := mustGetwd()
-			d, err := openDB()
+			d, err := openEngine()
 			if err != nil {
 				return err
 			}
@@ -540,7 +540,7 @@ func newConfigListCmd() *cobra.Command {
 		Use:   "list",
 		Short: "List all tracked config",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			d, err := openDB()
+			d, err := openEngine()
 			if err != nil {
 				return err
 			}
@@ -578,7 +578,7 @@ func newConfigShowCmd() *cobra.Command {
 		Short: "Show config content from DB",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			d, err := openDB()
+			d, err := openEngine()
 			if err != nil {
 				return err
 			}
@@ -605,7 +605,7 @@ func newConfigHistoryCmd() *cobra.Command {
 		Short: "Show config version history",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			d, err := openDB()
+			d, err := openEngine()
 			if err != nil {
 				return err
 			}
@@ -642,7 +642,7 @@ func newConfigTrackCmd() *cobra.Command {
 		Use:   "track",
 		Short: "Track all current configuration",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			d, err := openDB()
+			d, err := openEngine()
 			if err != nil {
 				return err
 			}
@@ -664,7 +664,7 @@ func newConfigExportCmd() *cobra.Command {
 		Use:   "export",
 		Short: "Export tracked config to files",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			d, err := openDB()
+			d, err := openEngine()
 			if err != nil {
 				return err
 			}
@@ -700,7 +700,7 @@ func newConfigImportCmd() *cobra.Command {
 		Use:   "import",
 		Short: "Import config from files to DB",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			d, err := openDB()
+			d, err := openEngine()
 			if err != nil {
 				return err
 			}

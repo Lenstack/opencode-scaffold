@@ -1,10 +1,10 @@
 
 
-ocs init
-ocs init --template
-ocs init --detect
+ocs init                       - Create a scaffold empty
+ocs init --template            - Create a template scaffold 
+ocs init --detect              - Analyze al the project and create a custom scaffold based on project needs
 
-ocs agent create <name>
+ocs agent create <name> <description> <primary|subagent>   - Create an agent
 ocs agent add <name>
 ocs agent remove <name>
 ocs agent delete <name>
@@ -68,10 +68,11 @@ ocs spec clone <source> <new>
 
 ocs hub
 ocs hub server
-ocs hub connect --remote=  --key=
+ocs hub connect <url-server>
 ocs hub workspace
-ocs hub workspace create
-ocs hub workspace add-member
+ocs hub workspace create <name>
+ocs hub workspace invite <email>
+
 
 ocs help
 ocs help agent

@@ -43,30 +43,102 @@ func Execute() {
 }
 
 func init() {
+	// Core
 	rootCmd.AddCommand(newInitCmd())
-	rootCmd.AddCommand(newAddCmd())
-	rootCmd.AddCommand(newDoctorCmd())
-	rootCmd.AddCommand(newListCmd())
-	rootCmd.AddCommand(newUpgradeCmd())
-	rootCmd.AddCommand(newCompletionCmd())
 	rootCmd.AddCommand(newDiscoverCmd())
-	rootCmd.AddCommand(newSpecCmd())
-	rootCmd.AddCommand(newMemoryCmd())
-	rootCmd.AddCommand(newSessionCmd())
+	rootCmd.AddCommand(newDoctorCmd())
+	rootCmd.AddCommand(newUpgradeCmd())
+	rootCmd.AddCommand(newInfoCmd())
+	rootCmd.AddCommand(newVersionCmd())
+	rootCmd.AddCommand(newCompletionCmd())
+
+	// Entity management
+	rootCmd.AddCommand(newAgentCmd())
 	rootCmd.AddCommand(newSkillCmd())
-	rootCmd.AddCommand(newServeCmd())
-	rootCmd.AddCommand(newPushCmd())
-	rootCmd.AddCommand(newPullCmd())
+	rootCmd.AddCommand(newCommandCmd())
+	rootCmd.AddCommand(newPluginCmd())
+	rootCmd.AddCommand(newMemoryCmd())
+	rootCmd.AddCommand(newSpecCmd())
+
+	// Templates
+	rootCmd.AddCommand(newTemplateCmd())
+
+	// Config
+	rootCmd.AddCommand(newConfigCmd())
+
+	// Hub
+	rootCmd.AddCommand(newHubCmd())
 	rootCmd.AddCommand(newAuthCmd())
 	rootCmd.AddCommand(newBackupCmd())
-	rootCmd.AddCommand(newStatusCmd())
-	rootCmd.AddCommand(newTemplateCmd())
-	rootCmd.AddCommand(newConfigCmd())
-	rootCmd.AddCommand(&cobra.Command{
+
+	// Legacy aliases
+	rootCmd.AddCommand(newAddCmd())
+	rootCmd.AddCommand(newListCmd())
+	rootCmd.AddCommand(newSessionCmd())
+}
+
+func newVersionCmd() *cobra.Command {
+	return &cobra.Command{
 		Use:   "version",
 		Short: "Show version",
 		Run: func(cmd *cobra.Command, args []string) {
 			fmt.Printf("ocs %s\n", version)
 		},
-	})
+	}
+}
+
+func newInfoCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "info",
+		Short: "Show project info",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			root := mustGetwd()
+
+			fmt.Println()
+			bold := color.New(color.Bold)
+			bold.Println("  Project Info:")
+			fmt.Println()
+
+			// Stack info
+			fmt.Printf("  Root:      %s\n", root)
+
+			// Check for opencode.json
+			if _, err := os.Stat(root + "/opencode.json"); err == nil {
+				fmt.Printf("  Config:    %s\n", color.GreenString("opencode.json found"))
+			} else {
+				fmt.Printf("  Config:    %s\n", color.RedString("opencode.json missing"))
+			}
+
+			// Check for AGENTS.md
+			if _, err := os.Stat(root + "/AGENTS.md"); err == nil {
+				fmt.Printf("  Rules:     %s\n", color.GreenString("AGENTS.md found"))
+			} else {
+				fmt.Printf("  Rules:     %s\n", color.RedString("AGENTS.md missing"))
+			}
+
+			// Check for .opencode
+			if _, err := os.Stat(root + "/.opencode"); err == nil {
+				fmt.Printf("  Scaffold:  %s\n", color.GreenString(".opencode/ found"))
+			} else {
+				fmt.Printf("  Scaffold:  %s\n", color.RedString(".opencode/ missing"))
+			}
+
+			// Check for LevelDB
+			if _, err := os.Stat(root + "/.opencode/data"); err == nil {
+				fmt.Printf("  Database:  %s\n", color.GreenString("LevelDB found"))
+			} else {
+				fmt.Printf("  Database:  %s\n", color.RedString("LevelDB missing"))
+			}
+
+			// Check for git
+			if _, err := os.Stat(root + "/.git"); err == nil {
+				fmt.Printf("  Git:       %s\n", color.GreenString("git repo found"))
+			} else {
+				fmt.Printf("  Git:       %s\n", color.RedString("not a git repo"))
+			}
+
+			fmt.Println()
+			return nil
+		},
+	}
 }
