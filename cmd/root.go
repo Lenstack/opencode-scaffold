@@ -61,6 +61,7 @@ func init() {
 	rootCmd.AddCommand(newBackupCmd())
 	rootCmd.AddCommand(newStatusCmd())
 	rootCmd.AddCommand(newTemplateCmd())
+	rootCmd.AddCommand(newConfigCmd())
 	rootCmd.AddCommand(&cobra.Command{
 		Use:   "version",
 		Short: "Show version",
