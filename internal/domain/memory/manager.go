@@ -3,6 +3,8 @@ package memory
 import (
 	"encoding/json"
 	"fmt"
+	"hash/fnv"
+	"strings"
 	"time"
 
 	"github.com/Lenstack/opencode-scaffold/internal/hub"
@@ -24,7 +26,7 @@ func (m *Manager) AddEpisodic(mem hub.EpisodicMemory) error {
 }
 
 func (m *Manager) AddSemantic(mem hub.SemanticMemory) error {
-	key := fmt.Sprintf("%x", hashKey(mem.FactKey))
+	key := fmt.Sprintf("%016x", hashKey(mem.FactKey))
 	mem.TS = time.Now().UTC().Format(time.RFC3339)
 	mem.ExpiresAt = time.Now().Add(90 * 24 * time.Hour).UTC().Format(time.RFC3339)
 
@@ -49,7 +51,7 @@ func (m *Manager) AddHeuristic(rule hub.HeuristicRule) error {
 }
 
 func (m *Manager) AddQuarantine(fact string, confidence float64, reason string) error {
-	key := fmt.Sprintf("%x", hashKey(fact))
+	key := fmt.Sprintf("%016x", hashKey(fact))
 	data := map[string]any{
 		"fact":       fact,
 		"confidence": confidence,
@@ -104,17 +106,27 @@ func (m *Manager) PruneExpired() (int, error) {
 	semantic, _ := m.db.PruneExpired(hub.NSMemorySemantic)
 
 	quarantined := 0
+	var toQuarantine []string
+	var toDelete []string
+
 	m.db.Iterate(hub.NSMemorySemantic, func(key string, value []byte) error {
 		var mem hub.SemanticMemory
 		if err := unmarshal(value, &mem); err == nil {
 			if mem.Confidence < 0.60 {
-				m.AddQuarantine(mem.Fact, mem.Confidence, "low confidence after TTL")
-				m.db.Delete(hub.NSMemorySemantic, key)
-				quarantined++
+				toQuarantine = append(toQuarantine, mem.Fact)
+				toDelete = append(toDelete, key)
 			}
 		}
 		return nil
 	})
+
+	for _, fact := range toQuarantine {
+		m.AddQuarantine(fact, 0.50, "low confidence after TTL")
+	}
+	for _, key := range toDelete {
+		m.db.Delete(hub.NSMemorySemantic, key)
+	}
+	quarantined = len(toQuarantine)
 
 	return episodic + semantic + quarantined, nil
 }
@@ -125,7 +137,7 @@ func (m *Manager) Get(key string) (any, error) {
 
 func containsAny(text, query string) bool {
 	for _, word := range splitWords(query) {
-		if len(word) > 2 && contains(text, word) {
+		if len(word) > 2 && strings.Contains(text, word) {
 			return true
 		}
 	}
@@ -149,21 +161,10 @@ func splitWords(s string) []string {
 	return words
 }
 
-func contains(s, sub string) bool {
-	for i := 0; i <= len(s)-len(sub); i++ {
-		if s[i:i+len(sub)] == sub {
-			return true
-		}
-	}
-	return false
-}
-
-func hashKey(s string) []byte {
-	h := make([]byte, len(s))
-	for i := 0; i < len(s); i++ {
-		h[i] = s[i] ^ byte(i)
-	}
-	return h
+func hashKey(s string) uint64 {
+	h := fnv.New64a()
+	h.Write([]byte(s))
+	return h.Sum64()
 }
 
 func unmarshal(data []byte, v any) error {

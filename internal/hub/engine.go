@@ -36,6 +36,31 @@ func (e *Engine) Put(namespace, key string, value any) error {
 	return e.db.Put([]byte(namespace+":"+key), data, nil)
 }
 
+func (e *Engine) BatchPut(namespace string, entries map[string]any) error {
+	batch := new(leveldb.Batch)
+	for key, value := range entries {
+		data, err := json.Marshal(value)
+		if err != nil {
+			return fmt.Errorf("marshal %s:%s: %w", namespace, key, err)
+		}
+		batch.Put([]byte(namespace+":"+key), data)
+	}
+	return e.db.Write(batch, nil)
+}
+
+func (e *Engine) BatchDelete(namespace string, keys []string) error {
+	if len(keys) == 0 {
+		return nil
+	}
+	batch := new(leveldb.Batch)
+	for _, key := range keys {
+		batch.Delete([]byte(namespace + ":" + key))
+	}
+	return e.db.Write(batch, nil)
+}
+
+var ErrNotFound = fmt.Errorf("not found")
+
 func (e *Engine) Get(namespace, key string, dest any) error {
 	data, err := e.db.Get([]byte(namespace+":"+key), nil)
 	if err != nil {
@@ -46,8 +71,6 @@ func (e *Engine) Get(namespace, key string, dest any) error {
 	}
 	return json.Unmarshal(data, dest)
 }
-
-var ErrNotFound = fmt.Errorf("not found")
 
 func (e *Engine) Delete(namespace, key string) error {
 	return e.db.Delete([]byte(namespace+":"+key), nil)
@@ -135,9 +158,11 @@ func (e *Engine) PruneExpired(namespace string) (int, error) {
 		return nil
 	})
 
-	for _, key := range toDelete {
-		e.Delete(namespace, key)
-		pruned++
+	if len(toDelete) > 0 {
+		if batchErr := e.BatchDelete(namespace, toDelete); batchErr != nil {
+			return pruned, batchErr
+		}
+		pruned = len(toDelete)
 	}
 
 	return pruned, err

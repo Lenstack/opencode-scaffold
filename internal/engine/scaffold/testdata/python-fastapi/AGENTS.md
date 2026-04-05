@@ -1,5 +1,5 @@
 # Project Production Rules
-# Stack: Python + FastAPI | Framework: fastapi | Template: Standard Production | Generated: 2026-04-04
+# Stack: Python + FastAPI | Framework: fastapi | Template: Standard Production | Generated: 2026-04-05
 #
 # This file is loaded by OpenCode via "instructions" in opencode.json.
 # All agents read these rules. Edit freely — commit to Git.

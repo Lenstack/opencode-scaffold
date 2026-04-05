@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sync"
 	"time"
 
 	"github.com/Lenstack/opencode-scaffold/internal/core"
 	"github.com/Lenstack/opencode-scaffold/internal/detector"
-	"github.com/Lenstack/opencode-scaffold/internal/hooks"
 	tmpl "github.com/Lenstack/opencode-scaffold/internal/domain/template"
+	"github.com/Lenstack/opencode-scaffold/internal/hooks"
 )
 
 type Options struct {
@@ -223,6 +224,10 @@ func Apply(plan Plan, opts Options) Result {
 	r := Result{}
 	w := &Writer{Root: opts.Root, Force: opts.Force, DryRun: opts.DryRun, Renderer: opts.Renderer, Result: &r}
 
+	var wg sync.WaitGroup
+	var mu sync.Mutex
+	sem := make(chan struct{}, 8)
+
 	for _, f := range plan.Files {
 		if f.Action == "skip" {
 			if opts.Renderer != nil {
@@ -235,8 +240,17 @@ func Apply(plan Plan, opts Options) Result {
 			w.Dir(f.Path[:len(f.Path)-len("/.gitkeep")])
 			continue
 		}
-		w.File(f.Path, f.Content, f.Mode)
+		wg.Add(1)
+		sem <- struct{}{}
+		go func(f FileOp) {
+			defer wg.Done()
+			defer func() { <-sem }()
+			mu.Lock()
+			w.File(f.Path, f.Content, f.Mode)
+			mu.Unlock()
+		}(f)
 	}
+	wg.Wait()
 
 	if opts.RunHooks && !opts.DryRun {
 		hookResults := hooks.RunHooks(opts.Root, plan.Hooks)
@@ -284,10 +298,24 @@ func agentSet(preset string) []string {
 	}
 }
 
+var validAgents = map[string]struct{}{
+	"orchestrator": {}, "planner": {}, "architect": {},
+	"tester": {}, "reviewer": {}, "security": {}, "reflector": {},
+}
+
 func buildConfig(ctx tmpl.Context, agents []string) *core.Config {
 	cfg := core.New(ctx.Model, ctx.SmallModel)
+	seen := make(map[string]bool)
 
 	for _, name := range agents {
+		if _, ok := validAgents[name]; !ok {
+			continue
+		}
+		if seen[name] {
+			continue
+		}
+		seen[name] = true
+
 		agent := &core.AgentConfig{
 			Description: name + " agent",
 			Mode:        "subagent",

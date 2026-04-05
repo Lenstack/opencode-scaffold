@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"sync"
 	"text/template"
 )
 
@@ -103,19 +104,18 @@ func ValidateSkillName(name string) error {
 	return nil
 }
 
-func renderTemplate(path string, ctx Context) (string, error) {
-	content, err := builtinFS.ReadFile(path)
-	if err != nil {
-		return "", fmt.Errorf("template %s not found: %w", path, err)
-	}
+var (
+	masterTemplate   *template.Template
+	masterTemplateMu sync.Once
+)
 
-	tmpl, err := template.New(filepath.Base(path)).Funcs(FuncMap()).Parse(string(content))
-	if err != nil {
-		return "", fmt.Errorf("parse template %s: %w", path, err)
-	}
-
-	partials, err := builtinFS.ReadDir("builtins/_partials")
-	if err == nil {
+func getMasterTemplate() *template.Template {
+	masterTemplateMu.Do(func() {
+		masterTemplate = template.New("").Funcs(FuncMap())
+		partials, err := builtinFS.ReadDir("builtins/_partials")
+		if err != nil {
+			return
+		}
 		for _, p := range partials {
 			if p.IsDir() || !strings.HasSuffix(p.Name(), ".tmpl") {
 				continue
@@ -125,11 +125,56 @@ func renderTemplate(path string, ctx Context) (string, error) {
 				continue
 			}
 			pname := strings.TrimSuffix(p.Name(), ".tmpl")
-			_, err = tmpl.New(pname).Funcs(FuncMap()).Parse(string(pc))
-			if err != nil {
-				return "", fmt.Errorf("parse partial %s: %w", p.Name(), err)
-			}
+			masterTemplate.New(pname).Funcs(FuncMap()).Parse(string(pc))
 		}
+	})
+	return masterTemplate
+}
+
+var (
+	templateCache   = make(map[string]*template.Template)
+	templateCacheMu sync.RWMutex
+)
+
+func getCachedTemplate(path string, content string) (*template.Template, error) {
+	templateCacheMu.RLock()
+	tmpl, ok := templateCache[path]
+	templateCacheMu.RUnlock()
+	if ok {
+		return tmpl, nil
+	}
+
+	templateCacheMu.Lock()
+	defer templateCacheMu.Unlock()
+
+	if tmpl, ok := templateCache[path]; ok {
+		return tmpl, nil
+	}
+
+	master := getMasterTemplate()
+	cloned, err := master.Clone()
+	if err != nil {
+		return nil, fmt.Errorf("clone master template: %w", err)
+	}
+
+	tmpl, err = cloned.New(filepath.Base(path)).Funcs(FuncMap()).Parse(content)
+	if err != nil {
+		return nil, fmt.Errorf("parse template %s: %w", path, err)
+	}
+
+	templateCache[path] = tmpl
+	return tmpl, nil
+}
+
+func renderTemplate(path string, ctx Context) (string, error) {
+	content, err := builtinFS.ReadFile(path)
+	if err != nil {
+		return "", fmt.Errorf("template %s not found: %w", path, err)
+	}
+
+	tmpl, err := getCachedTemplate(path, string(content))
+	if err != nil {
+		return "", err
 	}
 
 	var buf bytes.Buffer

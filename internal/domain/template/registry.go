@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sync"
 
 	"gopkg.in/yaml.v3"
 )
@@ -29,6 +30,66 @@ func Builtins() map[string]Template {
 			Agents:           []string{"orchestrator", "planner", "architect", "tester", "reviewer", "security", "reflector"},
 			Skills:           []string{"tdd-workflow", "code-review", "security-audit", "git-workflow", "api-design", "observability", "refactor", "performance"},
 			Commands:         []string{"ocs-plan", "ocs-review", "ocs-ship", "ocs-reflect", "ocs-discover", "ocs-init"},
+			IncludeCI:        true,
+			IncludeDiscovery: true,
+		},
+		"minimal": {
+			ID:               "minimal",
+			Name:             "Minimal",
+			Description:      "Quick iterations for solo developers",
+			Agents:           []string{"orchestrator", "tester", "reviewer"},
+			Skills:           []string{"tdd-workflow", "code-review", "git-workflow"},
+			Commands:         []string{"ocs-plan", "ocs-review"},
+			IncludeCI:        false,
+			IncludeDiscovery: true,
+		},
+		"solo-dev": {
+			ID:               "solo-dev",
+			Name:             "Solo Developer",
+			Description:      "Lightweight workflow for single developer",
+			Agents:           []string{"orchestrator", "tester"},
+			Skills:           []string{"tdd-workflow", "git-workflow"},
+			Commands:         []string{"ocs-plan", "ocs-reflect"},
+			IncludeCI:        false,
+			IncludeDiscovery: true,
+		},
+		"team-production": {
+			ID:               "team-production",
+			Name:             "Team Production",
+			Description:      "Strict quality gates for team workflows",
+			Agents:           []string{"orchestrator", "planner", "architect", "tester", "reviewer", "security", "reflector"},
+			Skills:           []string{"tdd-workflow", "code-review", "security-audit", "git-workflow", "api-design", "observability", "performance", "refactor"},
+			Commands:         []string{"ocs-plan", "ocs-review", "ocs-ship", "ocs-reflect", "ocs-discover"},
+			IncludeCI:        true,
+			IncludeDiscovery: true,
+		},
+		"api-backend": {
+			ID:               "api-backend",
+			Name:             "API Backend",
+			Description:      "Backend API development with security focus",
+			Agents:           []string{"orchestrator", "planner", "architect", "tester", "security"},
+			Skills:           []string{"api-design", "security-audit", "tdd-workflow", "git-workflow", "observability"},
+			Commands:         []string{"ocs-plan", "ocs-review", "ocs-ship"},
+			IncludeCI:        true,
+			IncludeDiscovery: true,
+		},
+		"frontend-app": {
+			ID:               "frontend-app",
+			Name:             "Frontend App",
+			Description:      "Frontend/UI development workflow",
+			Agents:           []string{"orchestrator", "planner", "tester", "reviewer"},
+			Skills:           []string{"code-review", "tdd-workflow", "git-workflow", "performance"},
+			Commands:         []string{"ocs-plan", "ocs-review"},
+			IncludeCI:        true,
+			IncludeDiscovery: true,
+		},
+		"fullstack": {
+			ID:               "fullstack",
+			Name:             "Fullstack",
+			Description:      "Full-stack development with parallel pipelines",
+			Agents:           []string{"orchestrator", "planner", "architect", "tester", "reviewer", "security", "reflector"},
+			Skills:           []string{"tdd-workflow", "code-review", "security-audit", "git-workflow", "api-design", "observability", "performance", "refactor"},
+			Commands:         []string{"ocs-plan", "ocs-review", "ocs-ship", "ocs-reflect", "ocs-discover"},
 			IncludeCI:        true,
 			IncludeDiscovery: true,
 		},
@@ -84,11 +145,23 @@ func LoadUserTemplates() map[string]Template {
 }
 
 func AllTemplates() map[string]Template {
-	all := Builtins()
-	for k, v := range LoadUserTemplates() {
-		all[k] = v
-	}
-	return all
+	allTemplatesOnce.Do(func() {
+		allTemplatesCache = Builtins()
+		for k, v := range LoadUserTemplates() {
+			allTemplatesCache[k] = v
+		}
+	})
+	return allTemplatesCache
+}
+
+var (
+	allTemplatesCache map[string]Template
+	allTemplatesOnce  sync.Once
+)
+
+func InvalidateTemplates() {
+	allTemplatesOnce = sync.Once{}
+	allTemplatesCache = nil
 }
 
 func GetTemplate(id string) (Template, error) {
