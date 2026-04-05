@@ -313,10 +313,12 @@ func buildConfig(ctx tmpl.Context, agents []string) *core.Config {
 			Mode:        "subagent",
 			Model:       ctx.Model,
 		}
-		if name == "orchestrator" {
+		switch name {
+		case "orchestrator":
 			agent.Mode = "primary"
 			agent.Steps = 40
 			agent.Temperature = 0.1
+			agent.Color = "#6366f1"
 			agent.Permission = map[string]any{
 				"bash": map[string]string{
 					"*":           "ask",
@@ -324,26 +326,35 @@ func buildConfig(ctx tmpl.Context, agents []string) *core.Config {
 					"git diff*":   "allow",
 					"git log*":    "allow",
 				},
+				"task": map[string]string{
+					"*": "allow",
+				},
 			}
-		}
-		if name == "planner" {
+		case "planner":
 			agent.Steps = 10
 			agent.Temperature = 0.15
+			agent.Color = "#f59e0b"
 			agent.Permission = map[string]any{
 				"edit": "deny",
 				"bash": map[string]string{"*": "deny"},
+				"task": map[string]string{
+					"*": "deny",
+				},
 			}
-		}
-		if name == "architect" {
+		case "architect":
 			agent.Steps = 10
 			agent.Temperature = 0.1
+			agent.Color = "#8b5cf6"
 			agent.Permission = map[string]any{
 				"bash": map[string]string{"*": "deny"},
+				"task": map[string]string{
+					"*": "deny",
+				},
 			}
-		}
-		if name == "tester" {
+		case "tester":
 			agent.Steps = 15
 			agent.Temperature = 0.05
+			agent.Color = "#10b981"
 			agent.Permission = map[string]any{
 				"bash": map[string]string{
 					"*":             "ask",
@@ -353,11 +364,14 @@ func buildConfig(ctx tmpl.Context, agents []string) *core.Config {
 					"pytest*":       "allow",
 					"cargo test*":   "allow",
 				},
+				"task": map[string]string{
+					"*": "deny",
+				},
 			}
-		}
-		if name == "reviewer" {
+		case "reviewer":
 			agent.Steps = 8
 			agent.Temperature = 0.1
+			agent.Color = "#ef4444"
 			agent.Permission = map[string]any{
 				"edit": "deny",
 				"bash": map[string]string{
@@ -365,11 +379,14 @@ func buildConfig(ctx tmpl.Context, agents []string) *core.Config {
 					"git diff*": "allow",
 					"grep*":     "allow",
 				},
+				"task": map[string]string{
+					"*": "deny",
+				},
 			}
-		}
-		if name == "security" {
+		case "security":
 			agent.Steps = 10
 			agent.Temperature = 0.05
+			agent.Color = "#dc2626"
 			agent.Permission = map[string]any{
 				"edit": "deny",
 				"bash": map[string]string{
@@ -377,14 +394,21 @@ func buildConfig(ctx tmpl.Context, agents []string) *core.Config {
 					"grep*":     "allow",
 					"git diff*": "allow",
 				},
+				"task": map[string]string{
+					"*": "deny",
+				},
 			}
-		}
-		if name == "reflector" {
+		case "reflector":
 			agent.Model = ctx.SmallModel
 			agent.Steps = 12
 			agent.Temperature = 0.3
+			agent.Hidden = true
+			agent.Color = "#06b6d4"
 			agent.Permission = map[string]any{
 				"bash": map[string]string{"*": "deny"},
+				"task": map[string]string{
+					"*": "deny",
+				},
 			}
 		}
 		cfg.AddAgent(name, agent)

@@ -27,8 +27,12 @@
       "permission": {
         "bash": {
           "*": "deny"
+        },
+        "task": {
+          "*": "deny"
         }
-      }
+      },
+      "color": "#8b5cf6"
     },
     "orchestrator": {
       "mode": "primary",
@@ -42,8 +46,12 @@
           "git diff*": "allow",
           "git log*": "allow",
           "git status*": "allow"
+        },
+        "task": {
+          "*": "allow"
         }
-      }
+      },
+      "color": "#6366f1"
     },
     "planner": {
       "mode": "subagent",
@@ -55,8 +63,12 @@
         "bash": {
           "*": "deny"
         },
-        "edit": "deny"
-      }
+        "edit": "deny",
+        "task": {
+          "*": "deny"
+        }
+      },
+      "color": "#f59e0b"
     },
     "reflector": {
       "mode": "subagent",
@@ -67,8 +79,13 @@
       "permission": {
         "bash": {
           "*": "deny"
+        },
+        "task": {
+          "*": "deny"
         }
-      }
+      },
+      "hidden": true,
+      "color": "#06b6d4"
     },
     "reviewer": {
       "mode": "subagent",
@@ -82,8 +99,12 @@
           "git diff*": "allow",
           "grep*": "allow"
         },
-        "edit": "deny"
-      }
+        "edit": "deny",
+        "task": {
+          "*": "deny"
+        }
+      },
+      "color": "#ef4444"
     },
     "security": {
       "mode": "subagent",
@@ -97,8 +118,12 @@
           "git diff*": "allow",
           "grep*": "allow"
         },
-        "edit": "deny"
-      }
+        "edit": "deny",
+        "task": {
+          "*": "deny"
+        }
+      },
+      "color": "#dc2626"
     },
     "tester": {
       "mode": "subagent",
@@ -114,8 +139,12 @@
           "npm run test*": "allow",
           "npm test*": "allow",
           "pytest*": "allow"
+        },
+        "task": {
+          "*": "deny"
         }
-      }
+      },
+      "color": "#10b981"
     }
   },
   "default_agent": "orchestrator"
