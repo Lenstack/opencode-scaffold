@@ -1,7 +1,9 @@
 ---
 description: Reviews CHANGED FILES ONLY — correctness, idioms, maintainability, test quality
 mode: subagent
+{{- if .Model}}
 model: {{.Model}}
+{{- end}}
 temperature: 0.1
 steps: 8
 permission:

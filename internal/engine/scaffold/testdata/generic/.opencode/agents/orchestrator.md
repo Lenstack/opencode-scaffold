@@ -1,7 +1,6 @@
 ---
 description: Master production orchestrator — coordinates full pipeline, enforces DoD
 mode: primary
-model: anthropic/claude-sonnet-4-20250514
 temperature: 0.1
 steps: 40
 permission:

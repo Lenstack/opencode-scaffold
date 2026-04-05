@@ -1,7 +1,9 @@
 ---
 description: Red-team security auditor — OWASP, IDOR, injection, secrets, dep scanning
 mode: subagent
+{{- if .Model}}
 model: {{.Model}}
+{{- end}}
 temperature: 0.05
 steps: 10
 permission:

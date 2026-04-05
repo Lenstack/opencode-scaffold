@@ -1,7 +1,9 @@
 ---
 description: Designs data models, API contracts, ADRs before any code is written
 mode: subagent
+{{- if .Model}}
 model: {{.Model}}
+{{- end}}
 temperature: 0.1
 steps: 10
 permission:

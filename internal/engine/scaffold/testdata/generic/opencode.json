@@ -1,7 +1,5 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "anthropic/claude-sonnet-4-20250514",
-  "small_model": "anthropic/claude-haiku-4-20250514",
   "autoupdate": true,
   "snapshot": true,
   "instructions": [
@@ -20,7 +18,6 @@
   "agent": {
     "architect": {
       "mode": "subagent",
-      "model": "anthropic/claude-sonnet-4-20250514",
       "description": "architect agent",
       "steps": 10,
       "temperature": 0.1,
@@ -36,7 +33,6 @@
     },
     "orchestrator": {
       "mode": "primary",
-      "model": "anthropic/claude-sonnet-4-20250514",
       "description": "orchestrator agent",
       "steps": 40,
       "temperature": 0.1,
@@ -55,7 +51,6 @@
     },
     "planner": {
       "mode": "subagent",
-      "model": "anthropic/claude-sonnet-4-20250514",
       "description": "planner agent",
       "steps": 10,
       "temperature": 0.15,
@@ -72,7 +67,6 @@
     },
     "reflector": {
       "mode": "subagent",
-      "model": "anthropic/claude-haiku-4-20250514",
       "description": "reflector agent",
       "steps": 12,
       "temperature": 0.3,
@@ -89,7 +83,6 @@
     },
     "reviewer": {
       "mode": "subagent",
-      "model": "anthropic/claude-sonnet-4-20250514",
       "description": "reviewer agent",
       "steps": 8,
       "temperature": 0.1,
@@ -108,7 +101,6 @@
     },
     "security": {
       "mode": "subagent",
-      "model": "anthropic/claude-sonnet-4-20250514",
       "description": "security agent",
       "steps": 10,
       "temperature": 0.05,
@@ -127,7 +119,6 @@
     },
     "tester": {
       "mode": "subagent",
-      "model": "anthropic/claude-sonnet-4-20250514",
       "description": "tester agent",
       "steps": 15,
       "temperature": 0.05,

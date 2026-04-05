@@ -1,7 +1,9 @@
 ---
 description: Post-task memory updater — tiers episodic/semantic/heuristics, confidence scoring
 mode: subagent
+{{- if .SmallModel}}
 model: {{.SmallModel}}
+{{- end}}
 temperature: 0.3
 steps: 12
 permission:

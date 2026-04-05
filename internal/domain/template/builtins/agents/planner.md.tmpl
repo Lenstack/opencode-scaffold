@@ -1,7 +1,9 @@
 ---
 description: Decomposes requests into tasks with acceptance criteria and edge cases
 mode: subagent
+{{- if .Model}}
 model: {{.Model}}
+{{- end}}
 temperature: 0.15
 steps: 10
 permission:

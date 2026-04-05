@@ -42,15 +42,6 @@ type Plan struct {
 }
 
 func MakePlan(opts Options) Plan {
-	model := opts.Model
-	if model == "" {
-		model = "anthropic/claude-sonnet-4-20250514"
-	}
-	small := opts.SmallModel
-	if small == "" {
-		small = "anthropic/claude-haiku-4-20250514"
-	}
-
 	ctx := tmpl.Context{
 		StackID:    opts.Stack.ID,
 		StackName:  opts.Stack.Name,
@@ -60,8 +51,8 @@ func MakePlan(opts Options) Plan {
 		HasDB:      opts.Stack.HasDB,
 		GoModule:   opts.Stack.GoModule,
 		NodePkg:    opts.Stack.NodePkgName,
-		Model:      model,
-		SmallModel: small,
+		Model:      opts.Model,
+		SmallModel: opts.SmallModel,
 	}
 
 	var plan Plan
@@ -311,7 +302,9 @@ func buildConfig(ctx tmpl.Context, agents []string) *core.Config {
 		agent := &core.AgentConfig{
 			Description: name + " agent",
 			Mode:        "subagent",
-			Model:       ctx.Model,
+		}
+		if ctx.Model != "" {
+			agent.Model = ctx.Model
 		}
 		switch name {
 		case "orchestrator":
@@ -399,7 +392,9 @@ func buildConfig(ctx tmpl.Context, agents []string) *core.Config {
 				},
 			}
 		case "reflector":
-			agent.Model = ctx.SmallModel
+			if ctx.SmallModel != "" {
+				agent.Model = ctx.SmallModel
+			}
 			agent.Steps = 12
 			agent.Temperature = 0.3
 			agent.Hidden = true

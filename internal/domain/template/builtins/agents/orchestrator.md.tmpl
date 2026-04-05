@@ -1,7 +1,9 @@
 ---
 description: Master production orchestrator — coordinates full pipeline, enforces DoD
 mode: primary
+{{- if .Model}}
 model: {{.Model}}
+{{- end}}
 temperature: 0.1
 steps: 40
 permission:

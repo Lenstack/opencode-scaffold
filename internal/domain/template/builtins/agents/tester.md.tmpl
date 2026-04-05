@@ -1,7 +1,9 @@
 ---
 description: TDD specialist — Phase 1 writes failing tests, Phase 2 executes and reports JSON
 mode: subagent
+{{- if .Model}}
 model: {{.Model}}
+{{- end}}
 temperature: 0.05
 steps: 15
 permission:

@@ -15,34 +15,39 @@ type AgentConfig struct {
 }
 
 type Config struct {
-	Schema       string                    `json:"$schema"`
-	Model        string                    `json:"model"`
-	SmallModel   string                    `json:"small_model,omitempty"`
-	Autoupdate   bool                      `json:"autoupdate"`
-	Snapshot     bool                      `json:"snapshot"`
-	Instructions []string                  `json:"instructions"`
-	Permission   map[string]any            `json:"permission,omitempty"`
-	Compaction   map[string]any            `json:"compaction,omitempty"`
-	Agent        map[string]*AgentConfig   `json:"agent,omitempty"`
-	DefaultAgent string                    `json:"default_agent,omitempty"`
+	Schema       string                  `json:"$schema"`
+	Model        string                  `json:"model,omitempty"`
+	SmallModel   string                  `json:"small_model,omitempty"`
+	Autoupdate   bool                    `json:"autoupdate"`
+	Snapshot     bool                    `json:"snapshot"`
+	Instructions []string                `json:"instructions"`
+	Permission   map[string]any          `json:"permission,omitempty"`
+	Compaction   map[string]any          `json:"compaction,omitempty"`
+	Agent        map[string]*AgentConfig `json:"agent,omitempty"`
+	DefaultAgent string                  `json:"default_agent,omitempty"`
 }
 
 func New(model, smallModel string) *Config {
-	return &Config{
+	cfg := &Config{
 		Schema:       "https://opencode.ai/config.json",
-		Model:        model,
-		SmallModel:   smallModel,
 		Autoupdate:   true,
 		Snapshot:     true,
 		Instructions: []string{"AGENTS.md"},
 		Permission: map[string]any{
-			"edit": "ask",
-			"bash": "ask",
+			"edit":  "ask",
+			"bash":  "ask",
 			"skill": map[string]string{"*": "allow"},
 		},
 		Compaction: map[string]any{"enabled": true},
 		Agent:      make(map[string]*AgentConfig),
 	}
+	if model != "" {
+		cfg.Model = model
+	}
+	if smallModel != "" {
+		cfg.SmallModel = smallModel
+	}
+	return cfg
 }
 
 func (c *Config) AddAgent(name string, agent *AgentConfig) {
