@@ -75,6 +75,9 @@ func init() {
 	rootCmd.AddCommand(newAddCmd())
 	rootCmd.AddCommand(newListCmd())
 	rootCmd.AddCommand(newSessionCmd())
+
+	// Auto-learning
+	rootCmd.AddCommand(newLearnCmd())
 }
 
 func newVersionCmd() *cobra.Command {
