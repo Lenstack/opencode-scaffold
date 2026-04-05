@@ -1,7 +1,7 @@
 ---
 description: Reviews CHANGED FILES ONLY — correctness, idioms, maintainability, test quality
 mode: subagent
-model: opencode/qwen3.6-plus-free
+model: openrouter/qwen/qwen3.6-plus:free
 temperature: 0.1
 steps: 8
 permission:

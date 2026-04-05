@@ -5,7 +5,7 @@
       "color": "#8b5cf6",
       "description": "architect agent",
       "mode": "subagent",
-      "model": "anthropic/claude-sonnet-4-20250514",
+      "model": "openrouter/qwen/qwen3.6-plus:free",
       "permission": {
         "bash": {
           "*": "deny"
@@ -21,7 +21,7 @@
       "color": "#6366f1",
       "description": "orchestrator agent",
       "mode": "primary",
-      "model": "anthropic/claude-sonnet-4-20250514",
+      "model": "openrouter/qwen/qwen3.6-plus:free",
       "permission": {
         "bash": {
           "*": "ask",
@@ -40,7 +40,7 @@
       "color": "#f59e0b",
       "description": "planner agent",
       "mode": "subagent",
-      "model": "anthropic/claude-sonnet-4-20250514",
+      "model": "openrouter/qwen/qwen3.6-plus:free",
       "permission": {
         "bash": {
           "*": "deny"
@@ -58,7 +58,7 @@
       "description": "reflector agent",
       "hidden": true,
       "mode": "subagent",
-      "model": "anthropic/claude-haiku-4-20250514",
+      "model": "openrouter/qwen/qwen3.6-plus:free",
       "permission": {
         "bash": {
           "*": "deny"
@@ -74,7 +74,7 @@
       "color": "#ef4444",
       "description": "reviewer agent",
       "mode": "subagent",
-      "model": "anthropic/claude-sonnet-4-20250514",
+      "model": "openrouter/qwen/qwen3.6-plus:free",
       "permission": {
         "bash": {
           "*": "deny",
@@ -93,7 +93,7 @@
       "color": "#dc2626",
       "description": "security agent",
       "mode": "subagent",
-      "model": "anthropic/claude-sonnet-4-20250514",
+      "model": "openrouter/qwen/qwen3.6-plus:free",
       "permission": {
         "bash": {
           "*": "ask",
@@ -112,7 +112,7 @@
       "color": "#10b981",
       "description": "tester agent",
       "mode": "subagent",
-      "model": "anthropic/claude-sonnet-4-20250514",
+      "model": "openrouter/qwen/qwen3.6-plus:free",
       "permission": {
         "bash": {
           "*": "ask",
@@ -132,13 +132,11 @@
   },
   "autoupdate": true,
   "compaction": {
-    "enabled": true
+    "auto": true
   },
   "default_agent": "orchestrator",
-  "instructions": [
-    "AGENTS.md"
-  ],
-  "model": "opencode/qwen3.6-plus-free",
+  "instructions": ["AGENTS.md"],
+  "model": "openrouter/qwen/qwen3.6-plus:free",
   "permission": {
     "bash": "ask",
     "edit": "ask",
@@ -146,6 +144,6 @@
       "*": "allow"
     }
   },
-  "small_model": "anthropic/claude-haiku-4-20250514",
+  "small_model": "openrouter/qwen/qwen3.6-plus:free",
   "snapshot": true
 }

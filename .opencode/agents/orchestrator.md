@@ -1,7 +1,7 @@
 ---
 description: Master production orchestrator — coordinates full pipeline, enforces DoD
 mode: primary
-model: opencode/qwen3.6-plus-free
+model: openrouter/qwen/qwen3.6-plus:free
 temperature: 0.1
 steps: 40
 permission:

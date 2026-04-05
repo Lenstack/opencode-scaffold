@@ -1,7 +1,7 @@
 ---
 description: TDD specialist — Phase 1 writes failing tests, Phase 2 executes and reports JSON
 mode: subagent
-model: opencode/qwen3.6-plus-free
+model: openrouter/qwen/qwen3.6-plus:free
 temperature: 0.05
 steps: 15
 permission:

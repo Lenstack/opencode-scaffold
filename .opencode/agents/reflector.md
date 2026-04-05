@@ -1,7 +1,7 @@
 ---
 description: Post-task memory updater — tiers episodic/semantic/heuristics, confidence scoring
 mode: subagent
-model: opencode/qwen3.6-plus-free
+model: openrouter/qwen/qwen3.6-plus:free
 temperature: 0.3
 steps: 12
 permission:
