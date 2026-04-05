@@ -422,3 +422,43 @@
 15:38:11.915555 table@build exiting
 15:38:11.915561 table@build revert @89
 15:38:11.915629 db@close done T·1.036541ms
+=============== Apr 5, 2026 (-05) ===============
+16:09:43.445134 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+16:09:43.445292 version@stat F·[6 2] S·32KiB[29KiB 3KiB] Sc·[1.50 0.00]
+16:09:43.445303 db@open opening
+16:09:43.445341 journal@recovery F·1
+16:09:43.445632 journal@recovery recovering @87
+16:09:43.451063 memdb@flush created L0@89 N·1 S·410B "lea..045,v117":"lea..045,v117"
+16:09:43.451122 version@stat F·[7 2] S·32KiB[29KiB 3KiB] Sc·[1.75 0.00]
+16:09:43.454119 db@janitor F·11 G·0
+16:09:43.454132 db@open done T·8.823803ms
+16:09:43.454207 table@compaction L0·5 -> L1·1 S·3KiB Q·118
+16:09:43.454557 db@close closing
+16:09:43.455505 table@build created L1@92 N·23 S·1KiB "lea..ect,v93":"lea..ard,v98"
+16:09:43.455526 table@build exiting
+16:09:43.455531 table@build revert @92
+16:09:43.455601 db@close done T·1.085274ms
+=============== Apr 5, 2026 (-05) ===============
+16:09:45.128359 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+16:09:45.128515 version@stat F·[7 2] S·32KiB[29KiB 3KiB] Sc·[1.75 0.00]
+16:09:45.128525 db@open opening
+16:09:45.128561 journal@recovery F·1
+16:09:45.128869 journal@recovery recovering @90
+16:09:45.134590 memdb@flush created L0@92 N·1 S·410B "lea..507,v119":"lea..507,v119"
+16:09:45.134694 version@stat F·[8 2] S·33KiB[29KiB 3KiB] Sc·[2.00 0.00]
+16:09:45.138012 db@janitor F·12 G·0
+16:09:45.138034 db@open done T·9.498908ms
+16:09:45.138123 table@compaction L0·6 -> L1·1 S·3KiB Q·120
+16:09:45.139531 table@build created L1@95 N·24 S·1KiB "lea..ect,v93":"lea..ard,v98"
+16:09:45.139549 version@stat F·[2 2] S·31KiB[27KiB 4KiB] Sc·[0.50 0.00]
+16:09:45.139935 db@close closing
+16:09:45.141377 table@commit exiting
+16:09:45.141506 table@remove removed @92
+16:09:45.141516 table@remove removed @89
+16:09:45.141526 table@remove removed @82
+16:09:45.141538 table@remove removed @73
+16:09:45.141548 table@remove removed @70
+16:09:45.141557 table@remove removed @67
+16:09:45.141566 table@remove removed @42
+16:09:45.141574 db@write was delayed N·1 T·1.032289ms
+16:09:45.141581 db@close done T·1.64695ms

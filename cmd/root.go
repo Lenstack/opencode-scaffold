@@ -85,6 +85,7 @@ func init() {
 	rootCmd.AddCommand(newRollbackCmd())
 	rootCmd.AddCommand(newLintCmd())
 	rootCmd.AddCommand(newAuditCmd())
+	rootCmd.AddCommand(newModelCmd())
 }
 
 func newVersionCmd() *cobra.Command {

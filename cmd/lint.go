@@ -107,15 +107,7 @@ func lintAgents(root string) []LintIssue {
 			continue
 		}
 
-		name, _ := fm["name"].(string)
-		if name == "" {
-			issues = append(issues, LintIssue{
-				Severity: "error",
-				File:     ".opencode/agents/" + e.Name(),
-				Message:  "missing 'name' in frontmatter",
-			})
-		}
-
+		// OpenCode uses filename as agent name — 'name' field is optional
 		if fm["description"] == "" {
 			issues = append(issues, LintIssue{
 				Severity: "warning",
