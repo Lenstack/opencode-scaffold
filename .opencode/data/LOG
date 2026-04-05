@@ -377,3 +377,33 @@
 15:30:59.642288 table@build exiting
 15:30:59.642290 table@build revert @76
 15:30:59.642334 db@close done T·653.331µs
+=============== Apr 5, 2026 (-05) ===============
+15:33:08.538116 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+15:33:08.538271 version@stat F·[5 2] S·32KiB[28KiB 3KiB] Sc·[1.25 0.00]
+15:33:08.538279 db@open opening
+15:33:08.538323 journal@recovery F·2
+15:33:08.538655 journal@recovery recovering @74
+15:33:08.538770 journal@recovery recovering @81
+15:33:08.544007 memdb@flush created L0@82 N·1 S·410B "lea..452,v115":"lea..452,v115"
+15:33:08.544026 version@stat F·[6 2] S·32KiB[29KiB 3KiB] Sc·[1.50 0.00]
+15:33:08.547394 version@stat F·[6 2] S·32KiB[29KiB 3KiB] Sc·[1.50 0.00]
+15:33:08.548564 db@janitor F·12 G·2
+15:33:08.548575 db@janitor removing table-76
+15:33:08.548593 db@janitor removing manifest-82
+15:33:08.548608 db@open done T·10.32622ms
+15:33:08.548664 table@compaction L0·4 -> L1·1 S·3KiB Q·116
+15:33:08.548709 db@close closing
+15:33:08.548807 db@close done T·96.737µs
+=============== Apr 5, 2026 (-05) ===============
+15:34:21.142163 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+15:34:21.142262 version@stat F·[6 2] S·32KiB[29KiB 3KiB] Sc·[1.50 0.00]
+15:34:21.142266 db@open opening
+15:34:21.142286 journal@recovery F·1
+15:34:21.142811 journal@recovery recovering @84
+15:34:21.142953 version@stat F·[6 2] S·32KiB[29KiB 3KiB] Sc·[1.50 0.00]
+15:34:21.150077 db@janitor F·10 G·0
+15:34:21.150089 db@open done T·7.81861ms
+15:34:21.150169 table@compaction L0·4 -> L1·1 S·3KiB Q·116
+15:34:21.150184 table@build exiting
+15:34:21.150174 db@close closing
+15:34:21.150252 db@close done T·77.27µs
