@@ -422,6 +422,28 @@ func agentsMD(ctx tmpl.Context, tpl tmpl.Template) string {
 - Framework: %s
 - Database: %v
 
+## CLI as Source of Truth
+
+The ocs binary is the single source of truth for scaffold management.
+All agents MUST use the CLI — never manipulate .opencode/ files directly.
+
+| Task | Command |
+|---|---|
+| Health check | ocs doctor |
+| Index project | ocs discover |
+| Scaffold workflow | ocs init --template <name> |
+| Drift detection | ocs diff |
+| Validate integrity | ocs lint |
+| Export/Import | ocs bundle export / ocs bundle import |
+| Rollback | ocs rollback --to <version> |
+| Audit trail | ocs audit |
+| Memory management | ocs memory search/list/prune |
+| Session tracking | ocs learn session |
+| Auto-learning | ocs learn run |
+| Add components | ocs add agent/skill/command |
+| List components | ocs list agents/skills/commands/templates |
+| Config history | ocs config list/history |
+
 ## Agent Pipeline (execute in order, no exceptions)
 
 `+"```"+`
@@ -440,6 +462,7 @@ func agentsMD(ctx tmpl.Context, tpl tmpl.Template) string {
 8. **Changed files only in reviews**: never re-read the full codebase in gates
 9. **Skills loaded on-demand**: agents use the skill tool, not _index.md
 10. **Self-heal max 2 retries**: then escalate to user with full error
+11. **CLI is source of truth**: use ocs commands, never edit .opencode/ files directly
 
 ## Definition of Done (10 items — orchestrator validates all via bash)
 
@@ -456,7 +479,7 @@ func agentsMD(ctx tmpl.Context, tpl tmpl.Template) string {
 
 ## Memory Protocol
 
-Memory is stored in LevelDB at .opencode/data/ — managed by the ocs binary.
+Memory is managed entirely through the ocs CLI — stored in LevelDB at .opencode/data/.
 
 - **Tier 1 (Episodic)**: TTL 7 days — query via "ocs memory search --tier episodic"
 - **Tier 2 (Semantic)**: TTL 90 days, confidence-scored — query via "ocs memory search --tier semantic"
@@ -471,7 +494,7 @@ Reflector must:
 
 ## Discovery
 
-Project indexing is handled by the ocs binary:
+Project indexing is handled by the ocs CLI:
 - Run "ocs discover" for full reindex
 - Run "ocs discover --incremental" for changed files only (uses checksum)
 - Results stored in LevelDB at .opencode/data/
@@ -487,11 +510,27 @@ func emptyAgentsMD(ctx tmpl.Context) string {
 # This file is loaded by OpenCode via "instructions" in opencode.json.
 # Edit this file to add project-specific rules for your AI agents.
 #
-# Add agents with: ocs add agent <name>
-# Add skills with: ocs add skill <name>
-# Add commands with: ocs add command <name>
+# The ocs CLI is the source of truth for scaffold management.
+# All agents MUST use CLI commands — never edit .opencode/ files directly.
 #
-# Run "ocs init" to generate a full production workflow.
+# Essential commands:
+#   ocs doctor              — Check scaffold health
+#   ocs discover            — Index project
+#   ocs init --template <n> — Scaffold full workflow
+#   ocs diff                — Detect drift from template
+#   ocs lint                — Validate integrity
+#   ocs bundle export       — Portable backup
+#   ocs rollback --to <v>   — Revert to previous version
+#   ocs audit               — View change history
+#   ocs learn session       — Record session outcome
+#   ocs learn run           — Run auto-learning cycle
+#   ocs memory search       — Query memory
+#   ocs list                — List all components
+#
+# Add components:
+#   ocs add agent <name>
+#   ocs add skill <name>
+#   ocs add command <name>
 `, ctx.StackName, now)
 }
 
@@ -503,6 +542,7 @@ func defaultPipeline(ctx tmpl.Context) string {
       |
       +- Phase 0: @explore   -> run "ocs discover" to index project
       |                       load heuristics from "ocs memory list --tier heuristic"
+      |                       run "ocs doctor" to validate scaffold health
       |
       +- Phase 1: @planner   -> acceptance criteria, edge cases, task breakdown
       |
@@ -523,7 +563,9 @@ func defaultPipeline(ctx tmpl.Context) string {
       |
       +- Phase 8: Definition of Done (10 checks via bash)
       |
-      +- Phase 9: @reflector -> update memory via "ocs memory" commands`
+      +- Phase 9: @reflector -> record session via "ocs learn session"
+      |                       -> run "ocs learn run" for auto-learning
+      |                       -> run "ocs memory prune" to clean expired entries`
 }
 
 func postCommitHook() string {
