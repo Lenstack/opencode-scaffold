@@ -223,3 +223,70 @@ type SymbolEntry struct {
 	Location   string   `json:"location"`
 	References []string `json:"references"`
 }
+
+type KnowledgePush struct {
+	ProjectID  string           `json:"project_id"`
+	Workspace  string           `json:"workspace"`
+	Stack      string           `json:"stack"`
+	Semantic   []SemanticMemory `json:"semantic"`
+	Heuristics []HeuristicRule  `json:"heuristics"`
+	Sessions   []SessionOutcome `json:"sessions"`
+	PushedAt   string           `json:"pushed_at"`
+}
+
+type KnowledgePull struct {
+	ProjectID  string           `json:"project_id"`
+	Workspace  string           `json:"workspace"`
+	Stack      string           `json:"stack"`
+	Semantic   []SemanticMemory `json:"semantic"`
+	Heuristics []HeuristicRule  `json:"heuristics"`
+	Knowledge  []KnowledgeEntry `json:"knowledge"`
+	PulledAt   string           `json:"pulled_at"`
+}
+
+type SessionOutcome struct {
+	ID        string   `json:"id"`
+	SessionID string   `json:"session_id"`
+	Outcome   string   `json:"outcome"`
+	Agents    []string `json:"agents"`
+	Skills    []string `json:"skills"`
+	Template  string   `json:"template"`
+	Stack     string   `json:"stack"`
+	Workspace string   `json:"workspace"`
+	Duration  int      `json:"duration"`
+	Notes     string   `json:"notes"`
+	CreatedAt string   `json:"created_at"`
+}
+
+type KnowledgeEntry struct {
+	ID         string  `json:"id"`
+	Type       string  `json:"type"`
+	Title      string  `json:"title"`
+	Content    string  `json:"content"`
+	Source     string  `json:"source"`
+	Stack      string  `json:"stack"`
+	Confidence float64 `json:"confidence"`
+	CreatedAt  string  `json:"created_at"`
+}
+
+type SyncStatus struct {
+	LastPush    string `json:"last_push"`
+	LastPull    string `json:"last_pull"`
+	PushedItems int    `json:"pushed_items"`
+	PulledItems int    `json:"pulled_items"`
+	Status      string `json:"status"`
+}
+
+type GlobalHeuristicQuery struct {
+	Stack     string  `json:"stack"`
+	Workspace string  `json:"workspace"`
+	MinConf   float64 `json:"min_confidence"`
+	Limit     int     `json:"limit"`
+}
+
+type GlobalPatternQuery struct {
+	Stack     string `json:"stack"`
+	Workspace string `json:"workspace"`
+	Category  string `json:"category"`
+	MinOccur  int    `json:"min_occurrences"`
+}

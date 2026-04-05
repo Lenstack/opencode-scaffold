@@ -78,6 +78,74 @@ func New(path string) (*Store, error) {
 			detail TEXT,
 			created_at TEXT
 		);
+
+		CREATE TABLE IF NOT EXISTS knowledge_entries (
+			id TEXT PRIMARY KEY,
+			project_id TEXT,
+			workspace TEXT,
+			stack TEXT,
+			type TEXT,
+			title TEXT,
+			content TEXT,
+			source TEXT,
+			confidence REAL DEFAULT 0.5,
+			created_at TEXT
+		);
+
+		CREATE TABLE IF NOT EXISTS heuristics_global (
+			id TEXT PRIMARY KEY,
+			project_id TEXT,
+			workspace TEXT,
+			stack TEXT,
+			rule TEXT,
+			rationale TEXT,
+			confidence REAL DEFAULT 0.5,
+			invocation_count INTEGER DEFAULT 0,
+			override_count INTEGER DEFAULT 0,
+			active INTEGER DEFAULT 1,
+			created_at TEXT,
+			updated_at TEXT
+		);
+
+		CREATE TABLE IF NOT EXISTS patterns_global (
+			id TEXT PRIMARY KEY,
+			project_id TEXT,
+			workspace TEXT,
+			stack TEXT,
+			category TEXT,
+			name TEXT,
+			description TEXT,
+			occurrences INTEGER DEFAULT 1,
+			success_rate REAL DEFAULT 0.5,
+			confidence REAL DEFAULT 0.5,
+			promoted INTEGER DEFAULT 0,
+			created_at TEXT,
+			updated_at TEXT
+		);
+
+		CREATE TABLE IF NOT EXISTS project_registry (
+			id TEXT PRIMARY KEY,
+			name TEXT,
+			workspace TEXT,
+			stack TEXT,
+			created_at TEXT,
+			last_sync TEXT
+		);
+
+		CREATE TABLE IF NOT EXISTS session_outcomes (
+			id TEXT PRIMARY KEY,
+			project_id TEXT,
+			workspace TEXT,
+			stack TEXT,
+			session_id TEXT,
+			outcome TEXT,
+			agents TEXT,
+			skills TEXT,
+			template TEXT,
+			duration INTEGER,
+			notes TEXT,
+			created_at TEXT
+		);
 	`); err != nil {
 		return nil, fmt.Errorf("init schema: %w", err)
 	}
@@ -308,4 +376,179 @@ func (s *Store) LogAudit(userID, action, detail string) error {
 		id, userID, action, detail, time.Now().UTC().Format(time.RFC3339),
 	)
 	return err
+}
+
+func (s *Store) RegisterProject(id, name, workspace, stack string) error {
+	_, err := s.db.Exec(
+		"INSERT OR REPLACE INTO project_registry (id, name, workspace, stack, created_at) VALUES (?, ?, ?, ?, ?)",
+		id, name, workspace, stack, time.Now().UTC().Format(time.RFC3339),
+	)
+	return err
+}
+
+func (s *Store) PushKnowledge(push KnowledgePush) error {
+	now := time.Now().UTC().Format(time.RFC3339)
+
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	for _, sem := range push.Semantic {
+		id := fmt.Sprintf("sem-%d-%s", time.Now().UnixNano(), sem.FactKey[:minInt(8, len(sem.FactKey))])
+		tx.Exec(
+			"INSERT OR REPLACE INTO knowledge_entries (id, project_id, workspace, stack, type, title, content, source, confidence, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+			id, push.ProjectID, push.Workspace, push.Stack, "semantic", sem.FactKey, sem.Fact, sem.Source, sem.Confidence, now,
+		)
+	}
+
+	for _, h := range push.Heuristics {
+		id := fmt.Sprintf("heur-%d-%s", time.Now().UnixNano(), h.ID)
+		active := 0
+		if h.Active {
+			active = 1
+		}
+		tx.Exec(
+			"INSERT OR REPLACE INTO heuristics_global (id, project_id, workspace, stack, rule, rationale, confidence, invocation_count, override_count, active, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+			id, push.ProjectID, push.Workspace, push.Stack, h.Rule, h.Rationale, h.Confidence, h.InvocationCount, h.OverrideCount, active, now, now,
+		)
+	}
+
+	for _, sess := range push.Sessions {
+		id := fmt.Sprintf("sess-%d-%s", time.Now().UnixNano(), sess.SessionID)
+		agents, _ := json.Marshal(sess.Agents)
+		skills, _ := json.Marshal(sess.Skills)
+		tx.Exec(
+			"INSERT OR REPLACE INTO session_outcomes (id, project_id, workspace, stack, session_id, outcome, agents, skills, template, duration, notes, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+			id, push.ProjectID, push.Workspace, push.Stack, sess.SessionID, sess.Outcome, string(agents), string(skills), sess.Template, sess.Duration, sess.Notes, now,
+		)
+	}
+
+	return tx.Commit()
+}
+
+func (s *Store) PullKnowledge(stack, workspace string) (*KnowledgePull, error) {
+	pull := &KnowledgePull{
+		Stack:     stack,
+		Workspace: workspace,
+		PulledAt:  time.Now().UTC().Format(time.RFC3339),
+	}
+
+	rows, err := s.db.Query(
+		"SELECT type, title, content, source, confidence, created_at FROM knowledge_entries WHERE workspace = ? AND (stack = ? OR stack = '') AND confidence >= 0.60 ORDER BY confidence DESC LIMIT 50",
+		workspace, stack,
+	)
+	if err == nil {
+		defer rows.Close()
+		for rows.Next() {
+			var k KnowledgeEntry
+			if err := rows.Scan(&k.Type, &k.Title, &k.Content, &k.Source, &k.Confidence, &k.CreatedAt); err == nil {
+				pull.Semantic = append(pull.Semantic, SemanticMemory{
+					Fact:       k.Content,
+					FactKey:    k.Title,
+					Confidence: k.Confidence,
+					Source:     k.Source,
+					Category:   k.Type,
+				})
+			}
+		}
+	}
+
+	hRows, err := s.db.Query(
+		"SELECT rule, rationale, confidence, invocation_count, override_count, active FROM heuristics_global WHERE workspace = ? AND (stack = ? OR stack = '') AND active = 1 AND confidence >= 0.50 ORDER BY confidence DESC LIMIT 30",
+		workspace, stack,
+	)
+	if err == nil {
+		defer hRows.Close()
+		for hRows.Next() {
+			var h HeuristicRule
+			var active int
+			if err := hRows.Scan(&h.Rule, &h.Rationale, &h.Confidence, &h.InvocationCount, &h.OverrideCount, &active); err == nil {
+				h.Active = active == 1
+				h.ID = fmt.Sprintf("global-%d", time.Now().UnixNano())
+				pull.Heuristics = append(pull.Heuristics, h)
+			}
+		}
+	}
+
+	kRows, err := s.db.Query(
+		"SELECT id, type, title, content, source, stack, confidence, created_at FROM knowledge_entries WHERE workspace = ? AND type IN ('lesson', 'pattern', 'warning') ORDER BY confidence DESC LIMIT 30",
+		workspace,
+	)
+	if err == nil {
+		defer kRows.Close()
+		for kRows.Next() {
+			var k KnowledgeEntry
+			if err := kRows.Scan(&k.ID, &k.Type, &k.Title, &k.Content, &k.Source, &k.Stack, &k.Confidence, &k.CreatedAt); err == nil {
+				pull.Knowledge = append(pull.Knowledge, k)
+			}
+		}
+	}
+
+	return pull, nil
+}
+
+func (s *Store) GetGlobalHeuristics(stack, workspace string, minConf float64, limit int) ([]HeuristicRule, error) {
+	if limit == 0 {
+		limit = 50
+	}
+
+	rows, err := s.db.Query(
+		"SELECT id, rule, rationale, confidence, invocation_count, override_count, active FROM heuristics_global WHERE workspace = ? AND (stack = ? OR stack = '') AND confidence >= ? AND active = 1 ORDER BY confidence DESC LIMIT ?",
+		workspace, stack, minConf, limit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var heuristics []HeuristicRule
+	for rows.Next() {
+		var h HeuristicRule
+		var active int
+		if err := rows.Scan(&h.ID, &h.Rule, &h.Rationale, &h.Confidence, &h.InvocationCount, &h.OverrideCount, &active); err == nil {
+			h.Active = active == 1
+			heuristics = append(heuristics, h)
+		}
+	}
+	return heuristics, nil
+}
+
+func (s *Store) PushSession(outcome SessionOutcome) error {
+	id := fmt.Sprintf("sess-%d-%s", time.Now().UnixNano(), outcome.SessionID)
+	agents, _ := json.Marshal(outcome.Agents)
+	skills, _ := json.Marshal(outcome.Skills)
+	_, err := s.db.Exec(
+		"INSERT OR REPLACE INTO session_outcomes (id, project_id, workspace, stack, session_id, outcome, agents, skills, template, duration, notes, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+		id, outcome.ID, outcome.Workspace, outcome.Stack, outcome.SessionID, outcome.Outcome, string(agents), string(skills), outcome.Template, outcome.Duration, outcome.Notes, outcome.CreatedAt,
+	)
+	return err
+}
+
+func (s *Store) GetWorkspaceKnowledge(workspace string) ([]KnowledgeEntry, error) {
+	rows, err := s.db.Query(
+		"SELECT id, type, title, content, source, stack, confidence, created_at FROM knowledge_entries WHERE workspace = ? ORDER BY confidence DESC LIMIT 50",
+		workspace,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var entries []KnowledgeEntry
+	for rows.Next() {
+		var k KnowledgeEntry
+		if err := rows.Scan(&k.ID, &k.Type, &k.Title, &k.Content, &k.Source, &k.Stack, &k.Confidence, &k.CreatedAt); err == nil {
+			entries = append(entries, k)
+		}
+	}
+	return entries, nil
+}
+
+func minInt(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }

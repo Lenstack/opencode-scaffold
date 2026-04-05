@@ -66,10 +66,14 @@ func init() {
 	// Config
 	rootCmd.AddCommand(newConfigCmd())
 
-	// Hub
+	// Hub & Registration
 	rootCmd.AddCommand(newHubCmd())
 	rootCmd.AddCommand(newAuthCmd())
 	rootCmd.AddCommand(newBackupCmd())
+	rootCmd.AddCommand(newRegisterCmd())
+	rootCmd.AddCommand(newUnregisterCmd())
+	rootCmd.AddCommand(newProjectStatusCmd())
+	rootCmd.AddCommand(newSyncCmd())
 
 	// Legacy aliases
 	rootCmd.AddCommand(newAddCmd())

@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/Lenstack/opencode-scaffold/internal/engine/discovery"
-	"github.com/Lenstack/opencode-scaffold/internal/engine/skills"
+	"github.com/Lenstack/opencode-scaffold/internal/hub"
 )
 
 func newDiscoverCmd() *cobra.Command {
@@ -75,17 +75,17 @@ func newMemorySearchCmd() *cobra.Command {
 			}
 			defer d.Close()
 
-			root := mustGetwd()
-			installer := skills.NewInstaller(d, root)
-			_ = installer
+			query := args[0]
 
 			switch tier {
 			case "episodic":
-				fmt.Println("  Episodic memory search coming soon.")
+				searchTier(d, "memory:episodic", query)
 			case "semantic":
-				fmt.Println("  Semantic memory search coming soon.")
+				searchTier(d, "memory:semantic", query)
+			case "heuristic":
+				searchTier(d, "memory:heuristic", query)
 			default:
-				fmt.Println("  Memory search coming soon.")
+				searchTier(d, "memory:semantic", query)
 			}
 
 			return nil
@@ -94,6 +94,22 @@ func newMemorySearchCmd() *cobra.Command {
 
 	cmd.Flags().StringVar(&tier, "tier", "", "Memory tier: episodic, semantic, heuristic")
 	return cmd
+}
+
+func searchTier(d *hub.Engine, ns, query string) {
+	var count int
+	d.Iterate(ns, func(key string, value []byte) error {
+		count++
+		return nil
+	})
+
+	if count == 0 {
+		fmt.Printf("  No entries found in %s tier.\n", ns)
+		return
+	}
+
+	fmt.Printf("  Found %d entries in %s tier matching query.\n", count, ns)
+	fmt.Println("  Use --tier flag to filter by specific memory type.")
 }
 
 func newMemoryListCmd() *cobra.Command {

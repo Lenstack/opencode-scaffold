@@ -462,6 +462,8 @@ All agents MUST use the CLI — never manipulate .opencode/ files directly.
 | Add components | ocs add agent/skill/command |
 | List components | ocs list agents/skills/commands/templates |
 | Config history | ocs config list/history |
+| Hub registration | ocs register/unregister/status |
+| Knowledge sync | ocs sync pull/push/auto/status |
 
 ## Agent Pipeline (execute in order, no exceptions)
 
@@ -546,6 +548,12 @@ func emptyAgentsMD(ctx tmpl.Context) string {
 #   ocs memory search       — Query memory
 #   ocs list                — List all components
 #
+# Hub & sync commands (if registered):
+#   ocs register --hub <url> — Connect to mothership hub
+#   ocs sync pull            — Pull global knowledge
+#   ocs sync push            — Push local learnings
+#   ocs sync auto            — Pull then push
+#
 # Add components:
 #   ocs add agent <name>
 #   ocs add skill <name>
@@ -562,6 +570,7 @@ func defaultPipeline(ctx tmpl.Context) string {
       +- Phase 0: @explore   -> run "ocs discover" to index project
       |                       load heuristics from "ocs memory list --tier heuristic"
       |                       run "ocs doctor" to validate scaffold health
+      |                       run "ocs sync pull" to load global heuristics (if registered)
       |
       +- Phase 1: @planner   -> acceptance criteria, edge cases, task breakdown
       |
@@ -584,7 +593,8 @@ func defaultPipeline(ctx tmpl.Context) string {
       |
       +- Phase 9: @reflector -> record session via "ocs learn session"
       |                       -> run "ocs learn run" for auto-learning
-      |                       -> run "ocs memory prune" to clean expired entries`
+      |                       -> run "ocs memory prune" to clean expired entries
+      |                       -> run "ocs sync push" to share learnings (if registered)`
 }
 
 func postCommitHook() string {
