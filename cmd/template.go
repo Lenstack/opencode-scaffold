@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/Lenstack/opencode-scaffold/internal/detector"
-	tmpl "github.com/Lenstack/opencode-scaffold/internal/template"
+	tmpl "github.com/Lenstack/opencode-scaffold/internal/domain/template"
 )
 
 func newTemplateCmd() *cobra.Command {

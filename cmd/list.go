@@ -8,7 +8,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	tmpl "github.com/Lenstack/opencode-scaffold/internal/template"
+	tmpl "github.com/Lenstack/opencode-scaffold/internal/domain/template"
 )
 
 func newListCmd() *cobra.Command {

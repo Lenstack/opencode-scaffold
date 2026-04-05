@@ -9,10 +9,10 @@ import (
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 
+	"github.com/Lenstack/opencode-scaffold/internal/core"
 	"github.com/Lenstack/opencode-scaffold/internal/detector"
-	"github.com/Lenstack/opencode-scaffold/internal/output"
-	"github.com/Lenstack/opencode-scaffold/internal/scaffold"
-	tmpl "github.com/Lenstack/opencode-scaffold/internal/template"
+	tmpl "github.com/Lenstack/opencode-scaffold/internal/domain/template"
+	"github.com/Lenstack/opencode-scaffold/internal/engine/scaffold"
 )
 
 func newInitCmd() *cobra.Command {
@@ -80,7 +80,7 @@ Available templates:
 
 			tpl, _ := tmpl.GetTemplate(template)
 
-			renderer := output.NewRenderer(outputFmt)
+			renderer := core.NewRenderer(outputFmt)
 
 			if outputFmt == "human" {
 				printBannerInit(stack, model, tpl)

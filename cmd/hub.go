@@ -15,7 +15,6 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/Lenstack/opencode-scaffold/internal/hub"
-	"github.com/Lenstack/opencode-scaffold/internal/server"
 )
 
 func newServeCmd() *cobra.Command {
@@ -54,7 +53,7 @@ Examples:
 			}
 			defer store.Close()
 
-			srv := server.New(store, addr)
+			srv := hub.NewServer(store, addr)
 			return srv.Serve()
 		},
 	}

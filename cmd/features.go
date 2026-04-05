@@ -10,12 +10,12 @@ import (
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 
-	"github.com/Lenstack/opencode-scaffold/internal/db"
-	"github.com/Lenstack/opencode-scaffold/internal/discovery"
-	"github.com/Lenstack/opencode-scaffold/internal/memory"
-	"github.com/Lenstack/opencode-scaffold/internal/session"
-	"github.com/Lenstack/opencode-scaffold/internal/skill"
-	"github.com/Lenstack/opencode-scaffold/internal/spec"
+	"github.com/Lenstack/opencode-scaffold/internal/hub"
+	"github.com/Lenstack/opencode-scaffold/internal/engine/discovery"
+	"github.com/Lenstack/opencode-scaffold/internal/domain/memory"
+	"github.com/Lenstack/opencode-scaffold/internal/domain/session"
+	"github.com/Lenstack/opencode-scaffold/internal/domain/skill"
+	"github.com/Lenstack/opencode-scaffold/internal/domain/spec"
 )
 
 func dataDir() string {
@@ -23,8 +23,8 @@ func dataDir() string {
 	return filepath.Join(wd, ".opencode", "data")
 }
 
-func openDB() (*db.Engine, error) {
-	return db.New(dataDir())
+func openDB() (*hub.Engine, error) {
+	return hub.NewEngine(dataDir())
 }
 
 func newDiscoverCmd() *cobra.Command {
@@ -95,7 +95,7 @@ func newSpecCreateCmd() *cobra.Command {
 			defer d.Close()
 
 			mgr := spec.NewManager(d)
-			entry, err := mgr.Create(args[0], db.SpecRequirements{
+			entry, err := mgr.Create(args[0], hub.SpecRequirements{
 				AcceptanceCriteria: criteria,
 				EdgeCases:          edgeCases,
 			})
@@ -233,7 +233,7 @@ func newSpecValidateCmd() *cobra.Command {
 
 			if len(failed) == 0 {
 				color.Green("\n  All acceptance criteria met! Spec verified.\n")
-				return mgr.Verify(args[0], db.SpecVerification{
+				return mgr.Verify(args[0], hub.SpecVerification{
 					Status:         "verified",
 					Results:        reqs.AcceptanceCriteria,
 					FailedCriteria: nil,
@@ -245,7 +245,7 @@ func newSpecValidateCmd() *cobra.Command {
 				fmt.Printf("    ❌ %s\n", f)
 			}
 			fmt.Println()
-			return mgr.Verify(args[0], db.SpecVerification{
+			return mgr.Verify(args[0], hub.SpecVerification{
 				Status:         "failed",
 				FailedCriteria: failed,
 			})
@@ -322,13 +322,13 @@ func newMemoryGetCmd() *cobra.Command {
 
 			tier, _ := cmd.Flags().GetString("tier")
 			ns := map[string]string{
-				"episodic":   db.NSMemoryEpisodic,
-				"semantic":   db.NSMemorySemantic,
-				"heuristic":  db.NSMemoryHeuristic,
-				"quarantine": db.NSMemoryQuarantine,
+				"episodic":   hub.NSMemoryEpisodic,
+				"semantic":   hub.NSMemorySemantic,
+				"heuristic":  hub.NSMemoryHeuristic,
+				"quarantine": hub.NSMemoryQuarantine,
 			}[tier]
 			if ns == "" {
-				ns = db.NSMemorySemantic
+				ns = hub.NSMemorySemantic
 			}
 
 			var data map[string]any
@@ -405,10 +405,10 @@ func newMemoryListCmd() *cobra.Command {
 						r.ID, r.Rule, r.Confidence, r.Active)
 				}
 			default:
-				episodicCount, _ := d.Count(db.NSMemoryEpisodic)
-				semanticCount, _ := d.Count(db.NSMemorySemantic)
-				heuristicCount, _ := d.Count(db.NSMemoryHeuristic)
-				quarantineCount, _ := d.Count(db.NSMemoryQuarantine)
+				episodicCount, _ := d.Count(hub.NSMemoryEpisodic)
+				semanticCount, _ := d.Count(hub.NSMemorySemantic)
+				heuristicCount, _ := d.Count(hub.NSMemoryHeuristic)
+				quarantineCount, _ := d.Count(hub.NSMemoryQuarantine)
 
 				fmt.Printf("\n  Episodic:   %d entries\n", episodicCount)
 				fmt.Printf("  Semantic:   %d entries\n", semanticCount)
@@ -610,7 +610,7 @@ func newSkillOptimizeCmd() *cobra.Command {
 
 				knowledge, _ := mgr.GetKnowledge(s.Name)
 				if knowledge == nil {
-					knowledge = &db.SkillKnowledge{}
+					knowledge = &hub.SkillKnowledge{}
 				}
 
 				fmt.Printf("  %s: effectiveness %.2f → %.2f\n",
@@ -636,8 +636,8 @@ func newSkillSuggestCmd() *cobra.Command {
 			}
 			defer d.Close()
 
-			var pm db.ProjectMap
-			d.Get(db.NSDiscovery, "project_map", &pm)
+			var pm hub.ProjectMap
+			d.Get(hub.NSDiscovery, "project_map", &pm)
 
 			mgr := skill.NewManager(d)
 			suggestions := mgr.Suggest(pm.Stack)

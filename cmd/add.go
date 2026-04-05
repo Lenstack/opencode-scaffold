@@ -9,7 +9,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 
-	tmpl "github.com/Lenstack/opencode-scaffold/internal/template"
+	tmpl "github.com/Lenstack/opencode-scaffold/internal/domain/template"
 )
 
 func newAddCmd() *cobra.Command {

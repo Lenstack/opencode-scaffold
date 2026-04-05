@@ -7,7 +7,7 @@ import (
 	"strings"
 	gotemplate "text/template"
 
-	"github.com/Lenstack/opencode-scaffold/internal/template"
+	"github.com/Lenstack/opencode-scaffold/internal/domain/template"
 )
 
 var skillNameRe = regexp.MustCompile(`^[a-z0-9]+(-[a-z0-9]+)*$`)
