@@ -80,10 +80,6 @@ func MakePlan(opts Options) Plan {
 		".opencode/agents",
 		".opencode/skills",
 		".opencode/commands",
-		".opencode/memory/episodic",
-		".opencode/memory/semantic",
-		".opencode/memory/heuristics",
-		".opencode/memory/quarantine",
 		".opencode/data",
 		"docs/adr",
 	}
@@ -189,12 +185,8 @@ func makeEmptyPlan(opts Options, ctx tmpl.Context) Plan {
 		".opencode/agents",
 		".opencode/skills",
 		".opencode/commands",
-		".opencode/plugins",
-		".opencode/memory/episodic",
-		".opencode/memory/semantic",
-		".opencode/memory/heuristics",
-		".opencode/memory/quarantine",
 		".opencode/data",
+		"docs/adr",
 	}
 
 	for _, d := range dirs {

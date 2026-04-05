@@ -10,9 +10,7 @@ import (
 
 var updateGolden = flag.Bool("update-golden", false, "update golden test files")
 
-var volatileFiles = []string{
-	".opencode/memory/semantic/index.json",
-}
+var volatileFiles = []string{}
 
 func isVolatile(path string) bool {
 	for _, v := range volatileFiles {

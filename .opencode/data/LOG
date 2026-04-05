@@ -407,3 +407,18 @@
 15:34:21.150184 table@build exiting
 15:34:21.150174 db@close closing
 15:34:21.150252 db@close done T·77.27µs
+=============== Apr 5, 2026 (-05) ===============
+15:38:11.905455 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+15:38:11.905606 version@stat F·[6 2] S·32KiB[29KiB 3KiB] Sc·[1.50 0.00]
+15:38:11.905615 db@open opening
+15:38:11.905652 journal@recovery F·1
+15:38:11.906074 journal@recovery recovering @85
+15:38:11.906358 version@stat F·[6 2] S·32KiB[29KiB 3KiB] Sc·[1.50 0.00]
+15:38:11.913956 db@janitor F·10 G·0
+15:38:11.913968 db@open done T·8.346088ms
+15:38:11.914021 table@compaction L0·4 -> L1·1 S·3KiB Q·116
+15:38:11.914592 db@close closing
+15:38:11.915544 table@build created L1@89 N·22 S·1KiB "lea..ect,v93":"lea..ard,v98"
+15:38:11.915555 table@build exiting
+15:38:11.915561 table@build revert @89
+15:38:11.915629 db@close done T·1.036541ms

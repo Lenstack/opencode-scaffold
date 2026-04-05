@@ -47,7 +47,6 @@ func newUpgradeCmd() *cobra.Command {
 			protected := []string{
 				"AGENTS.md",
 				"opencode.json",
-				".opencode/memory/",
 				".opencode/data/",
 				".opencode/plugins/",
 			}

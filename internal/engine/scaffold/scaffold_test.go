@@ -26,10 +26,6 @@ func TestScaffoldGeneric(t *testing.T) {
 	testutil.AssertGolden(t, dir, "generic")
 }
 
-func goldenFilter(path string) bool {
-	return path != ".opencode/memory/semantic/index.json"
-}
-
 func TestScaffoldGoEncore(t *testing.T) {
 	dir := t.TempDir()
 
