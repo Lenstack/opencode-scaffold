@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
@@ -307,11 +308,88 @@ Examples:
 `,
 	}
 
+	cmd.AddCommand(newSkillCreateCmd())
 	cmd.AddCommand(newSkillSearchCmd())
 	cmd.AddCommand(newSkillInstallCmd())
 	cmd.AddCommand(newSkillListCmd())
 	cmd.AddCommand(newSkillUninstallCmd())
 
+	return cmd
+}
+
+func newSkillCreateCmd() *cobra.Command {
+	var description string
+
+	cmd := &cobra.Command{
+		Use:   "create <name>",
+		Short: "Create a new local skill",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			name := args[0]
+			root := mustGetwd()
+			dir := filepath.Join(root, ".opencode", "skills", name)
+			skillFile := filepath.Join(dir, "SKILL.md")
+
+			if _, err := os.Stat(skillFile); err == nil {
+				return fmt.Errorf("skill %s already exists", name)
+			}
+
+			if description == "" {
+				description = name + " skill"
+			}
+
+			content := fmt.Sprintf(`---
+name: %s
+description: %s
+license: MIT
+compatibility: opencode
+---
+
+# %s Skill
+
+## When to Use This Skill
+
+<Describe when an agent should load this skill.>
+
+## Guidelines
+
+<Main content — what agents should do when using this skill.>
+
+## Patterns
+
+`+"```"+`
+<Code examples or templates>
+`+"```"+`
+
+## Anti-patterns
+
+Never do:
+- <Anti-pattern 1>
+- <Anti-pattern 2>
+`, name, description, strings.Title(strings.ReplaceAll(name, "-", " ")))
+
+			if err := os.MkdirAll(dir, 0755); err != nil {
+				return err
+			}
+			if err := os.WriteFile(skillFile, []byte(content), 0644); err != nil {
+				return err
+			}
+
+			// Track in config DB
+			d, err := openEngine()
+			if err == nil {
+				defer d.Close()
+				tracker := config.NewTracker(d, root)
+				tracker.TrackConfig(filepath.Join(".opencode", "skills", name, "SKILL.md"), content, "user", "cli")
+			}
+
+			color.Green("Created skill: %s", name)
+			fmt.Printf("   Path: %s\n", skillFile)
+			return nil
+		},
+	}
+
+	cmd.Flags().StringVar(&description, "description", "", "Skill description")
 	return cmd
 }
 
