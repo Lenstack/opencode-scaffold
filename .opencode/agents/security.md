@@ -1,7 +1,7 @@
 ---
 description: Red-team security auditor — OWASP, IDOR, injection, secrets, dep scanning
 mode: subagent
-model: anthropic/claude-sonnet-4-20250514
+model: opencode/qwen3.6-plus-free
 temperature: 0.05
 steps: 10
 permission:

@@ -1,7 +1,7 @@
 ---
 description: TDD specialist — Phase 1 writes failing tests, Phase 2 executes and reports JSON
 mode: subagent
-model: anthropic/claude-sonnet-4-20250514
+model: opencode/qwen3.6-plus-free
 temperature: 0.05
 steps: 15
 permission:

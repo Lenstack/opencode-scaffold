@@ -1,7 +1,7 @@
 ---
 description: Post-task memory updater — tiers episodic/semantic/heuristics, confidence scoring
 mode: subagent
-model: anthropic/claude-haiku-4-20250514
+model: opencode/qwen3.6-plus-free
 temperature: 0.3
 steps: 12
 permission:

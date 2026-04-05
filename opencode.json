@@ -1,29 +1,11 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "anthropic/claude-sonnet-4-20250514",
-  "small_model": "anthropic/claude-haiku-4-20250514",
-  "autoupdate": true,
-  "snapshot": true,
-  "instructions": [
-    "AGENTS.md"
-  ],
-  "permission": {
-    "bash": "ask",
-    "edit": "ask",
-    "skill": {
-      "*": "allow"
-    }
-  },
-  "compaction": {
-    "enabled": true
-  },
   "agent": {
     "architect": {
+      "color": "#8b5cf6",
+      "description": "architect agent",
       "mode": "subagent",
       "model": "anthropic/claude-sonnet-4-20250514",
-      "description": "architect agent",
-      "steps": 10,
-      "temperature": 0.1,
       "permission": {
         "bash": {
           "*": "deny"
@@ -32,14 +14,14 @@
           "*": "deny"
         }
       },
-      "color": "#8b5cf6"
+      "steps": 10,
+      "temperature": 0.1
     },
     "orchestrator": {
+      "color": "#6366f1",
+      "description": "orchestrator agent",
       "mode": "primary",
       "model": "anthropic/claude-sonnet-4-20250514",
-      "description": "orchestrator agent",
-      "steps": 40,
-      "temperature": 0.1,
       "permission": {
         "bash": {
           "*": "ask",
@@ -51,14 +33,14 @@
           "*": "allow"
         }
       },
-      "color": "#6366f1"
+      "steps": 40,
+      "temperature": 0.1
     },
     "planner": {
+      "color": "#f59e0b",
+      "description": "planner agent",
       "mode": "subagent",
       "model": "anthropic/claude-sonnet-4-20250514",
-      "description": "planner agent",
-      "steps": 10,
-      "temperature": 0.15,
       "permission": {
         "bash": {
           "*": "deny"
@@ -68,14 +50,15 @@
           "*": "deny"
         }
       },
-      "color": "#f59e0b"
+      "steps": 10,
+      "temperature": 0.15
     },
     "reflector": {
+      "color": "#06b6d4",
+      "description": "reflector agent",
+      "hidden": true,
       "mode": "subagent",
       "model": "anthropic/claude-haiku-4-20250514",
-      "description": "reflector agent",
-      "steps": 12,
-      "temperature": 0.3,
       "permission": {
         "bash": {
           "*": "deny"
@@ -84,15 +67,14 @@
           "*": "deny"
         }
       },
-      "hidden": true,
-      "color": "#06b6d4"
+      "steps": 12,
+      "temperature": 0.3
     },
     "reviewer": {
+      "color": "#ef4444",
+      "description": "reviewer agent",
       "mode": "subagent",
       "model": "anthropic/claude-sonnet-4-20250514",
-      "description": "reviewer agent",
-      "steps": 8,
-      "temperature": 0.1,
       "permission": {
         "bash": {
           "*": "deny",
@@ -104,14 +86,14 @@
           "*": "deny"
         }
       },
-      "color": "#ef4444"
+      "steps": 8,
+      "temperature": 0.1
     },
     "security": {
+      "color": "#dc2626",
+      "description": "security agent",
       "mode": "subagent",
       "model": "anthropic/claude-sonnet-4-20250514",
-      "description": "security agent",
-      "steps": 10,
-      "temperature": 0.05,
       "permission": {
         "bash": {
           "*": "ask",
@@ -123,14 +105,14 @@
           "*": "deny"
         }
       },
-      "color": "#dc2626"
+      "steps": 10,
+      "temperature": 0.05
     },
     "tester": {
+      "color": "#10b981",
+      "description": "tester agent",
       "mode": "subagent",
       "model": "anthropic/claude-sonnet-4-20250514",
-      "description": "tester agent",
-      "steps": 15,
-      "temperature": 0.05,
       "permission": {
         "bash": {
           "*": "ask",
@@ -144,8 +126,26 @@
           "*": "deny"
         }
       },
-      "color": "#10b981"
+      "steps": 15,
+      "temperature": 0.05
     }
   },
-  "default_agent": "orchestrator"
+  "autoupdate": true,
+  "compaction": {
+    "enabled": true
+  },
+  "default_agent": "orchestrator",
+  "instructions": [
+    "AGENTS.md"
+  ],
+  "model": "opencode/qwen3.6-plus-free",
+  "permission": {
+    "bash": "ask",
+    "edit": "ask",
+    "skill": {
+      "*": "allow"
+    }
+  },
+  "small_model": "anthropic/claude-haiku-4-20250514",
+  "snapshot": true
 }
