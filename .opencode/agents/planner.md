@@ -1,7 +1,7 @@
 ---
 description: Decomposes requests into tasks with acceptance criteria and edge cases
 mode: subagent
-model: anthropic/claude-sonnet-4-20250514
+model: openrouter/qwen/qwen3.6-plus:free
 temperature: 0.15
 steps: 10
 permission:

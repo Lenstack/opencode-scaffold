@@ -3,28 +3,41 @@ package core
 import "encoding/json"
 
 type AgentConfig struct {
-	Mode        string         `json:"mode"`
+	Mode        string         `json:"mode,omitempty"`
 	Model       string         `json:"model,omitempty"`
-	Description string         `json:"description"`
+	Variant     string         `json:"variant,omitempty"`
+	Description string         `json:"description,omitempty"`
 	Steps       int            `json:"steps,omitempty"`
 	Temperature float64        `json:"temperature,omitempty"`
-	Permission  map[string]any `json:"permission,omitempty"`
+	TopP        float64        `json:"top_p,omitempty"`
+	Prompt      string         `json:"prompt,omitempty"`
+	Disable     bool           `json:"disable,omitempty"`
 	Hidden      bool           `json:"hidden,omitempty"`
 	Color       string         `json:"color,omitempty"`
-	TopP        float64        `json:"top_p,omitempty"`
+	Permission  map[string]any `json:"permission,omitempty"`
+	Options     map[string]any `json:"options,omitempty"`
 }
 
 type Config struct {
-	Schema       string                  `json:"$schema"`
+	Schema       string                  `json:"$schema,omitempty"`
+	LogLevel     string                  `json:"logLevel,omitempty"`
 	Model        string                  `json:"model,omitempty"`
 	SmallModel   string                  `json:"small_model,omitempty"`
-	Autoupdate   bool                    `json:"autoupdate"`
-	Snapshot     bool                    `json:"snapshot"`
-	Instructions []string                `json:"instructions"`
+	Autoupdate   any                     `json:"autoupdate,omitempty"`
+	Snapshot     bool                    `json:"snapshot,omitempty"`
+	Share        string                  `json:"share,omitempty"`
+	Disabled     []string                `json:"disabled_providers,omitempty"`
+	Enabled      []string                `json:"enabled_providers,omitempty"`
+	Instructions []string                `json:"instructions,omitempty"`
 	Permission   map[string]any          `json:"permission,omitempty"`
-	Compaction   map[string]any          `json:"compaction,omitempty"`
+	Watcher      map[string]any          `json:"watcher,omitempty"`
+	Skills       map[string]any          `json:"skills,omitempty"`
+	Command      map[string]any          `json:"command,omitempty"`
+	Server       map[string]any          `json:"server,omitempty"`
+	Plugin       []any                   `json:"plugin,omitempty"`
 	Agent        map[string]*AgentConfig `json:"agent,omitempty"`
 	DefaultAgent string                  `json:"default_agent,omitempty"`
+	Username     string                  `json:"username,omitempty"`
 }
 
 func New(model, smallModel string) *Config {
@@ -33,13 +46,14 @@ func New(model, smallModel string) *Config {
 		Autoupdate:   true,
 		Snapshot:     true,
 		Instructions: []string{"AGENTS.md"},
+		Share:        "manual",
+		Watcher:      map[string]any{"ignore": []string{}},
 		Permission: map[string]any{
 			"edit":  "ask",
 			"bash":  "ask",
 			"skill": map[string]string{"*": "allow"},
 		},
-		Compaction: map[string]any{"enabled": true},
-		Agent:      make(map[string]*AgentConfig),
+		Agent: make(map[string]*AgentConfig),
 	}
 	if model != "" {
 		cfg.Model = model

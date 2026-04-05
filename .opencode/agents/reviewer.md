@@ -1,7 +1,7 @@
 ---
 description: Reviews CHANGED FILES ONLY — correctness, idioms, maintainability, test quality
 mode: subagent
-model: anthropic/claude-sonnet-4-20250514
+model: openrouter/qwen/qwen3.6-plus:free
 temperature: 0.1
 steps: 8
 permission:
