@@ -78,6 +78,13 @@ func init() {
 
 	// Auto-learning
 	rootCmd.AddCommand(newLearnCmd())
+
+	// New management commands
+	rootCmd.AddCommand(newDiffCmd())
+	rootCmd.AddCommand(newBundleCmd())
+	rootCmd.AddCommand(newRollbackCmd())
+	rootCmd.AddCommand(newLintCmd())
+	rootCmd.AddCommand(newAuditCmd())
 }
 
 func newVersionCmd() *cobra.Command {
