@@ -77,8 +77,8 @@ func (e *Engine) Delete(namespace, key string) error {
 }
 
 func (e *Engine) Has(namespace, key string) bool {
-	_, err := e.db.Has([]byte(namespace+":"+key), nil)
-	return err == nil
+	exists, err := e.db.Has([]byte(namespace+":"+key), nil)
+	return err == nil && exists
 }
 
 func (e *Engine) Iterate(namespace string, fn func(key string, value []byte) error) error {
