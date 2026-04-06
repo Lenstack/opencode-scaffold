@@ -129,23 +129,11 @@ func listTemplates() error {
 	bold.Println("  Available Template Packs:")
 	fmt.Println()
 
-	packs := []struct {
-		id, name, desc string
-	}{
-		{"go-encore", "Go + Encore", "Backend services with Encore.go primitives"},
-		{"go-fiber", "Go + Fiber", "Fast HTTP framework for Go"},
-		{"go-gin", "Go + Gin", "Web framework with martini-like API"},
-		{"go-chi", "Go + Chi", "Lightweight, idiomatic router for Go"},
-		{"python-fastapi", "Python + FastAPI", "Modern async Python web framework"},
-		{"python-django", "Python + Django", "Full-stack Python framework"},
-		{"node-nextjs", "Node + Next.js", "React framework with App Router"},
-		{"rust-axum", "Rust + Axum", "Ergonomic web framework for Rust"},
-		{"generic", "Generic", "Fallback for any project"},
-	}
-
-	for _, p := range packs {
-		fmt.Printf("  %-20s %s\n", cyan.Sprint(p.id), p.desc)
-		fmt.Printf("    %-20s %s\n", "", p.name)
+	templates := tmpl.AllTemplates()
+	for id, t := range templates {
+		fmt.Printf("  %-20s %s\n", cyan.Sprint(id), t.Description)
+		fmt.Printf("    agents: %-3d  skills: %-3d  commands: %-3d\n",
+			len(t.Agents), len(t.Skills), len(t.Commands))
 		fmt.Println()
 	}
 
@@ -172,4 +160,3 @@ func listTemplates() error {
 
 	return nil
 }
-

@@ -91,7 +91,7 @@ permission:
 ## Output
 
 <Describe the expected output format.>
-`, description, mode, model, steps, strings.Title(name))
+`, description, mode, model, steps, titleCase(name))
 
 			if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
 				return err
@@ -175,7 +175,7 @@ compatibility: opencode
 Never do:
 - <Anti-pattern 1>
 - <Anti-pattern 2>
-`, name, description, strings.Title(strings.ReplaceAll(name, "-", " ")))
+`, name, description, titleCase(strings.ReplaceAll(name, "-", " ")))
 
 			if err := os.MkdirAll(dir, 0755); err != nil {
 				return err

@@ -98,18 +98,47 @@ func newMemorySearchCmd() *cobra.Command {
 
 func searchTier(d *hub.Engine, ns, query string) {
 	var count int
+	var matched []string
 	d.Iterate(ns, func(key string, value []byte) error {
 		count++
+		if query == "" || containsStr(string(value), query) || containsStr(key, query) {
+			matched = append(matched, key)
+		}
 		return nil
 	})
 
-	if count == 0 {
-		fmt.Printf("  No entries found in %s tier.\n", ns)
+	if len(matched) == 0 {
+		fmt.Printf("  No entries found in %s tier", ns)
+		if query != "" {
+			fmt.Printf(" matching %q", query)
+		}
+		fmt.Println(".")
 		return
 	}
 
-	fmt.Printf("  Found %d entries in %s tier matching query.\n", count, ns)
-	fmt.Println("  Use --tier flag to filter by specific memory type.")
+	fmt.Printf("  Found %d entries in %s tier", len(matched), ns)
+	if query != "" {
+		fmt.Printf(" matching %q", query)
+	}
+	fmt.Printf(" (of %d total):\n", count)
+	fmt.Println()
+	for _, k := range matched {
+		fmt.Printf("    - %s\n", k)
+	}
+	fmt.Println()
+}
+
+func containsStr(s, substr string) bool {
+	return len(s) >= len(substr) && (s == substr || len(substr) == 0 || indexOf(s, substr) >= 0)
+}
+
+func indexOf(s, substr string) int {
+	for i := 0; i <= len(s)-len(substr); i++ {
+		if s[i:i+len(substr)] == substr {
+			return i
+		}
+	}
+	return -1
 }
 
 func newMemoryListCmd() *cobra.Command {

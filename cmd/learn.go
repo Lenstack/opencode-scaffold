@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
@@ -47,13 +46,13 @@ Examples:
 
 func newLearnSessionCmd() *cobra.Command {
 	var (
-		outcome  string
-		agents   []string
-		skills   []string
-		template string
-		stack    string
-		duration int
-		notes    string
+		outcomeStr string
+		agents     []string
+		skills     []string
+		template   string
+		stack      string
+		duration   int
+		notes      string
 	)
 
 	cmd := &cobra.Command{
@@ -71,7 +70,7 @@ func newLearnSessionCmd() *cobra.Command {
 
 			outcome := learn.SessionOutcome{
 				SessionID: args[0],
-				Outcome:   outcome,
+				Outcome:   outcomeStr,
 				Agents:    agents,
 				Skills:    skills,
 				Template:  template,
@@ -84,12 +83,12 @@ func newLearnSessionCmd() *cobra.Command {
 				return err
 			}
 
-			color.Green("Recorded session %s: outcome=%s agents=%v skills=%v", args[0], outcome, agents, skills)
+			color.Green("Recorded session %s: outcome=%s agents=%v skills=%v", args[0], outcomeStr, agents, skills)
 			return nil
 		},
 	}
 
-	cmd.Flags().StringVar(&outcome, "outcome", "success", "Session outcome: success, failure, partial")
+	cmd.Flags().StringVar(&outcomeStr, "outcome", "success", "Session outcome: success, failure, partial")
 	cmd.Flags().StringSliceVar(&agents, "agents", nil, "Agents used")
 	cmd.Flags().StringSliceVar(&skills, "skills", nil, "Skills loaded")
 	cmd.Flags().StringVar(&template, "template", "", "Template used")
@@ -127,6 +126,7 @@ func newLearnPatternsCmd() *cobra.Command {
 
 			fmt.Println()
 			bold := color.New(color.Bold)
+			cyan := color.New(color.FgCyan)
 			bold.Println("  Detected Patterns:")
 			fmt.Println()
 
@@ -481,40 +481,4 @@ func effectivenessBar(rate float64) string {
 		return color.YellowString("[%s]", filled)
 	}
 	return color.RedString("[%s]", filled)
-}
-
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
-}
-
-func formatDuration(seconds int) string {
-	if seconds < 60 {
-		return fmt.Sprintf("%ds", seconds)
-	}
-	if seconds < 3600 {
-		return fmt.Sprintf("%dm %ds", seconds/60, seconds%60)
-	}
-	return fmt.Sprintf("%dh %dm", seconds/3600, (seconds%3600)/60)
-}
-
-func parseDuration(s string) time.Duration {
-	if len(s) == 0 {
-		return 0
-	}
-	unit := s[len(s)-1:]
-	num := s[:len(s)-1]
-	var n int
-	fmt.Sscanf(num, "%d", &n)
-
-	switch unit {
-	case "d":
-		return time.Duration(n) * 24 * time.Hour
-	case "y":
-		return time.Duration(n) * 365 * 24 * time.Hour
-	default:
-		return 0
-	}
 }

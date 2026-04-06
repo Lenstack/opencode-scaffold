@@ -170,23 +170,23 @@ type DiffResult struct {
 func buildExpectedFileList(tpl tmpl.Template, root string) []FileDiffEntry {
 	var files []FileDiffEntry
 
-	// AGENTS.md
-	if content, err := os.ReadFile(filepath.Join(root, "AGENTS.md")); err == nil {
-		files = append(files, FileDiffEntry{
-			Path:            "AGENTS.md",
-			BaselineContent: string(content), // We can't easily regenerate, so use current as baseline
-		})
+	// AGENTS.md — always expected if template has agents or instructions
+	// We can't easily regenerate the baseline, so we check existence only
+	if _, err := os.Stat(filepath.Join(root, "AGENTS.md")); err == nil {
+		files = append(files, FileDiffEntry{Path: "AGENTS.md"})
+	} else {
+		// Template expects it but it's missing
+		files = append(files, FileDiffEntry{Path: "AGENTS.md"})
 	}
 
-	// opencode.json
-	if content, err := os.ReadFile(filepath.Join(root, "opencode.json")); err == nil {
-		files = append(files, FileDiffEntry{
-			Path:            "opencode.json",
-			BaselineContent: string(content),
-		})
+	// opencode.json — always expected
+	if _, err := os.Stat(filepath.Join(root, "opencode.json")); err == nil {
+		files = append(files, FileDiffEntry{Path: "opencode.json"})
+	} else {
+		files = append(files, FileDiffEntry{Path: "opencode.json"})
 	}
 
-	// Agent files
+	// Agent files — compare rendered template against current
 	for _, agent := range tpl.Agents {
 		path := filepath.Join(".opencode", "agents", agent+".md")
 		full := filepath.Join(root, path)
@@ -195,13 +195,28 @@ func buildExpectedFileList(tpl tmpl.Template, root string) []FileDiffEntry {
 			files = append(files, FileDiffEntry{Path: path})
 			continue
 		}
-		files = append(files, FileDiffEntry{
-			Path:            path,
-			BaselineContent: string(content),
-		})
+		// Render the expected baseline from template
+		ctx := tmpl.Context{StackID: tpl.ID, StackName: tpl.Name}
+		rendered, err := tmpl.RenderAgent(agent, ctx)
+		if err != nil {
+			// Can't render, fall back to checking existence only
+			files = append(files, FileDiffEntry{Path: path})
+			continue
+		}
+		if string(rendered) == string(content) {
+			files = append(files, FileDiffEntry{
+				Path:            path,
+				BaselineContent: string(rendered),
+			})
+		} else {
+			files = append(files, FileDiffEntry{
+				Path:            path,
+				BaselineContent: string(rendered),
+			})
+		}
 	}
 
-	// Skill files
+	// Skill files — compare rendered template against current
 	for _, skill := range tpl.Skills {
 		path := filepath.Join(".opencode", "skills", skill, "SKILL.md")
 		full := filepath.Join(root, path)
@@ -210,13 +225,26 @@ func buildExpectedFileList(tpl tmpl.Template, root string) []FileDiffEntry {
 			files = append(files, FileDiffEntry{Path: path})
 			continue
 		}
-		files = append(files, FileDiffEntry{
-			Path:            path,
-			BaselineContent: string(content),
-		})
+		ctx := tmpl.Context{StackID: tpl.ID, StackName: tpl.Name}
+		rendered, err := tmpl.RenderSkill(skill, ctx)
+		if err != nil {
+			files = append(files, FileDiffEntry{Path: path})
+			continue
+		}
+		if string(rendered) == string(content) {
+			files = append(files, FileDiffEntry{
+				Path:            path,
+				BaselineContent: string(rendered),
+			})
+		} else {
+			files = append(files, FileDiffEntry{
+				Path:            path,
+				BaselineContent: string(rendered),
+			})
+		}
 	}
 
-	// Command files
+	// Command files — compare rendered template against current
 	for _, command := range tpl.Commands {
 		path := filepath.Join(".opencode", "commands", command+".md")
 		full := filepath.Join(root, path)
@@ -225,10 +253,23 @@ func buildExpectedFileList(tpl tmpl.Template, root string) []FileDiffEntry {
 			files = append(files, FileDiffEntry{Path: path})
 			continue
 		}
-		files = append(files, FileDiffEntry{
-			Path:            path,
-			BaselineContent: string(content),
-		})
+		ctx := tmpl.Context{StackID: tpl.ID, StackName: tpl.Name}
+		rendered, err := tmpl.RenderCommand(command, ctx)
+		if err != nil {
+			files = append(files, FileDiffEntry{Path: path})
+			continue
+		}
+		if string(rendered) == string(content) {
+			files = append(files, FileDiffEntry{
+				Path:            path,
+				BaselineContent: string(rendered),
+			})
+		} else {
+			files = append(files, FileDiffEntry{
+				Path:            path,
+				BaselineContent: string(rendered),
+			})
+		}
 	}
 
 	// CI workflow

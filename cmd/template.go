@@ -366,7 +366,7 @@ compatibility: opencode
 Never do:
 - <Anti-pattern 1>
 - <Anti-pattern 2>
-`, name, description, strings.Title(strings.ReplaceAll(name, "-", " ")))
+`, name, description, titleCase(strings.ReplaceAll(name, "-", " ")))
 
 			if err := os.MkdirAll(dir, 0755); err != nil {
 				return err

@@ -119,6 +119,10 @@ func newDoctorCmd() *cobra.Command {
 				yellow.Println("  Some checks failed. Run: ocs init --force to fix.")
 			}
 			fmt.Println()
+
+			if !allOK {
+				return fmt.Errorf("scaffold health check failed")
+			}
 			return nil
 		},
 	}

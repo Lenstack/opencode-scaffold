@@ -125,6 +125,12 @@ Examples:
 			root := mustGetwd()
 			cfgPath := filepath.Join(root, "opencode.json")
 
+			// Support both --agent flag and positional [agent] argument
+			targetAgent := agentFlag
+			if targetAgent == "" && len(args) > 1 {
+				targetAgent = args[1]
+			}
+
 			data, err := os.ReadFile(cfgPath)
 			if err != nil {
 				return fmt.Errorf("read opencode.json: %w", err)
@@ -135,7 +141,7 @@ Examples:
 				return fmt.Errorf("parse opencode.json: %w", err)
 			}
 
-			if agentFlag != "" {
+			if targetAgent != "" {
 				// Set model for specific agent in opencode.json
 				agents, ok := cfg["agent"].(map[string]any)
 				if !ok {
@@ -143,25 +149,25 @@ Examples:
 					cfg["agent"] = agents
 				}
 
-				agentCfg, ok := agents[agentFlag].(map[string]any)
+				agentCfg, ok := agents[targetAgent].(map[string]any)
 				if !ok {
 					agentCfg = make(map[string]any)
-					agents[agentFlag] = agentCfg
+					agents[targetAgent] = agentCfg
 				}
 
 				agentCfg["model"] = model
 
 				// Update agent markdown file
-				agentFile := filepath.Join(root, ".opencode", "agents", agentFlag+".md")
+				agentFile := filepath.Join(root, ".opencode", "agents", targetAgent+".md")
 				if _, err := os.Stat(agentFile); err == nil {
 					if err := updateModelInFrontmatter(agentFile, model); err != nil {
 						fmt.Printf("  %s Failed to update %s: %v\n", color.YellowString("WARN"), agentFile, err)
 					} else {
-						fmt.Printf("  Updated %s\n", color.GreenString(agentFlag+".md"))
+						fmt.Printf("  Updated %s\n", color.GreenString(targetAgent+".md"))
 					}
 				}
 
-				fmt.Printf("  Set model for agent %q: %s\n", color.GreenString(agentFlag), model)
+				fmt.Printf("  Set model for agent %q: %s\n", color.GreenString(targetAgent), model)
 			} else {
 				// Set default model in opencode.json
 				cfg["model"] = model

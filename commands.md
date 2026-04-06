@@ -1,8 +1,23 @@
-
-
 ocs init                       - Create a scaffold empty
 ocs init --template            - Create a template scaffold 
 ocs init --detect              - Analyze al the project and create a custom scaffold based on project needs
+
+ocs mcp init                   - Initialize MCP context in project
+ocs mcp context                - Manage MCP contexts (create, list, show, delete)
+ocs mcp server                 - Run MCP server for external connections
+ocs mcp tools                  - List available MCP tools
+ocs mcp call                   - Call specific MCP tool with arguments
+ocs mcp agents                 - Configure MCP for specific agents
+ocs mcp validate               - Validate MCP compliance and configuration
+
+ocs sdd-init                   - Initialize SDD context in project
+ocs sdd-new <change-name>      - Start a new SDD change
+ocs sdd-continue <change-name> - Continue next pending artifact
+ocs sdd-ff <change-name>       - Generate all planning artifacts
+ocs sdd-apply <change-name>    - Implement tasks from specifications
+ocs sdd-verify <change-name>   - Verify implementation against specs
+ocs sdd-archive <change-name>  - Archive completed change
+ocs sdd-onboard                - Guided SDD walkthrough
 
 ocs agent create <name> <description> <primary|subagent>   - Create an agent
 ocs agent add <name>
@@ -13,7 +28,6 @@ ocs agent show <name>
 ocs agent edit <name>
 ocs agent rename <old> <new>
 ocs agent clone <source> <new>
-
 
 ocs skill create <name>
 ocs skill add <name>
@@ -73,7 +87,6 @@ ocs hub workspace
 ocs hub workspace create <name>
 ocs hub workspace invite <email>
 
-
 ocs help
 ocs help agent
 ocs help skill
@@ -81,6 +94,8 @@ ocs help memory
 ocs help command
 ocs help plugin
 ocs help spec
+ocs help mcp
+ocs help sdd
 
 ocs upgrade
 ocs version

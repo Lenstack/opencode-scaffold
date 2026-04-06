@@ -1,19 +1,35 @@
 package cmd
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
-	"bytes"
 	"net/http"
 	"os"
 	"path/filepath"
+	"time"
+	"unicode"
 
 	"github.com/Lenstack/opencode-scaffold/internal/hub"
 )
 
+// httpClient is a shared HTTP client with a 30-second timeout.
+var httpClient = &http.Client{Timeout: 30 * time.Second}
+
 func mustGetwd() string {
 	wd, _ := os.Getwd()
 	return wd
+}
+
+// titleCase capitalizes the first letter of each word (replacement for deprecated strings.Title).
+func titleCase(s string) string {
+	runes := []rune(s)
+	for i, r := range runes {
+		if i == 0 || runes[i-1] == ' ' || runes[i-1] == '-' {
+			runes[i] = unicode.ToUpper(r)
+		}
+	}
+	return string(runes)
 }
 
 func openDB() (*hub.Store, error) {
@@ -32,7 +48,7 @@ type hubClient struct {
 }
 
 func (c *hubClient) health() (map[string]string, error) {
-	resp, err := http.Get(c.server + "/api/health")
+	resp, err := httpClient.Get(c.server + "/api/health")
 	if err != nil {
 		return nil, err
 	}
@@ -47,14 +63,14 @@ func (c *hubClient) health() (map[string]string, error) {
 
 func (c *hubClient) saveConfig(projectID, configType string, content any, message string) error {
 	data, _ := json.Marshal(content)
-	url := fmt.Sprintf("%s/api/config/%s?project_id=%s&message=%s",
+	reqURL := fmt.Sprintf("%s/api/config/%s?project_id=%s&message=%s",
 		c.server, configType, projectID, message)
 
-	req, _ := http.NewRequest("POST", url, bytes.NewReader(data))
+	req, _ := http.NewRequest("POST", reqURL, bytes.NewReader(data))
 	req.Header.Set("Authorization", "Bearer "+c.apiKey)
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return err
 	}
@@ -69,13 +85,13 @@ func (c *hubClient) saveConfig(projectID, configType string, content any, messag
 }
 
 func (c *hubClient) getConfig(projectID, configType string) (any, error) {
-	url := fmt.Sprintf("%s/api/config/%s?project_id=%s",
+	reqURL := fmt.Sprintf("%s/api/config/%s?project_id=%s",
 		c.server, configType, projectID)
 
-	req, _ := http.NewRequest("GET", url, nil)
+	req, _ := http.NewRequest("GET", reqURL, nil)
 	req.Header.Set("Authorization", "Bearer "+c.apiKey)
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}

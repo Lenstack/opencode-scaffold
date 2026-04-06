@@ -92,7 +92,7 @@ permission:
 ## Output
 
 <Describe the expected output format.>
-`, description, mode, model, temperature, steps, strings.Title(name))
+`, description, mode, model, temperature, steps, titleCase(name))
 
 			if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
 				return err
@@ -645,7 +645,7 @@ export const %s = async () => {
     // Add event handlers here
   }
 }
-`, args[0], strings.Title(strings.ReplaceAll(args[0], "-", "")))
+`, args[0], titleCase(strings.ReplaceAll(args[0], "-", "")))
 
 			if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
 				return err
